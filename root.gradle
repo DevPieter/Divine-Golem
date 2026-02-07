@@ -1,0 +1,8 @@
+plugins {
+    id 'fabric-loom' version '1.14-SNAPSHOT' apply false
+    id 'com.replaymod.preprocess' version '521df70941'
+}
+
+preprocess {
+    def mc12110 = createNode('1.21.10', 12110, "yarn")
+}
