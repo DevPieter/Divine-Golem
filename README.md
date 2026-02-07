@@ -6,9 +6,14 @@
 ![License](https://img.shields.io/github/license/DevPieter/Divine-Golem?color=blue&label=License&logo=github)
 
 - [Download](#download)
+- [Features](#features)
 - [Description](#description)
+- [Roadmap](#roadmap)
 
 ## Download
+
+> [!IMPORTANT]
+> This mod is currently in very early stages of development and is by far not complete, expect bugs and missing features!
 
 You can download Divine Golem on Modrinth: [Download Divine Golem](https://modrinth.com/mod/divine-golem)
 
@@ -18,7 +23,21 @@ You can download Divine Golem on Modrinth: [Download Divine Golem](https://modri
 ![Modrinth Version](https://img.shields.io/modrinth/v/JZYRD8ij?color=blue&label=Version&logo=modrinth)
 ![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/JZYRD8ij?color=blue&label=Game%20Versions&logo=modrinth)
 
+## Features
+
+- **Stage 5 Notifications**: Get notified when the End Stone Protector reaches stage 5.
+- **Location Detection**: Detects the location of the End Stone Protector and sends it in chat.
+
 ## Description
 
 **Divine Golem** is a **Hypixel Skyblock Utility** mod focused on the **End Stone Protector**, it is currently in very
 early stages of development and is by far not complete.
+
+## Roadmap
+
+- [x] Basic Golem Detection
+- [ ] HUD Overlay
+- [ ] Loot Detection and Quality Calculation
+- [ ] Fight Statistics (e.g. DPS, Time, etc.)
+- [ ] Warp Hotkeys
+- [ ] And much more!
