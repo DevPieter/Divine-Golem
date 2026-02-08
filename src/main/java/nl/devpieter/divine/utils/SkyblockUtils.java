@@ -33,7 +33,7 @@ public class SkyblockUtils {
         return null;
     }
 
-    public static @Nullable GolemLocation getCurrentGolemLocation() {
+    public static @NotNull GolemLocation getCurrentGolemLocation() {
         for (GolemLocation location : GolemLocation.values()) {
             if (location == GolemLocation.UNDEFINED) continue;
 

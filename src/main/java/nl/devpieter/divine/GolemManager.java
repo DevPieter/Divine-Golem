@@ -1,25 +1,20 @@
 package nl.devpieter.divine;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
 import nl.devpieter.divine.enums.GolemLocation;
 import nl.devpieter.divine.enums.GolemStage;
 import nl.devpieter.divine.events.PlayerListUpdateEvent;
-import nl.devpieter.divine.events.SkyblockLocationUpdateEvent;
+import nl.devpieter.divine.events.skyblock.SkyblockLocationUpdateEvent;
+import nl.devpieter.divine.events.skyblock.protector.*;
 import nl.devpieter.divine.utils.RegexUtils;
 import nl.devpieter.divine.utils.SkyblockUtils;
+import nl.devpieter.sees.Sees;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
 import nl.devpieter.utilize.task.TaskManager;
 import nl.devpieter.utilize.task.tasks.RunLaterTask;
-import nl.devpieter.utilize.utils.minecraft.SoundUtils;
-import nl.devpieter.utilize.utils.minecraft.TextUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,14 +29,22 @@ public class GolemManager implements SListener {
     private final Pattern SPAWN_PATTERN = Pattern.compile("BEWARE - An End Stone Protector has risen!", Pattern.CASE_INSENSITIVE);
     private final Pattern DEATH_PATTERN = Pattern.compile("END STONE PROTECTOR DOWN!", Pattern.CASE_INSENSITIVE);
 
+    private final long GOLEM_SPAWN_DURATION = 20 * 1000L;
+
     private final HypixelManager hypixelManager = HypixelManager.getInstance();
     private final TaskManager taskManager = TaskManager.getInstance();
+    private final Sees sees = Sees.getSharedInstance();
 
     private boolean scanningForLocation = false;
     private int scanCounter = 0;
 
     private GolemStage currentStage = GolemStage.UNDEFINED;
     private GolemLocation currentLocation = GolemLocation.UNDEFINED;
+
+    private boolean isAboutToSpawn = false;
+    private long predictedSpawnTimeMillis = -1;
+
+    private boolean isFightActive = false;
 
     private GolemManager() {
     }
@@ -54,8 +57,22 @@ public class GolemManager implements SListener {
     private void onSkyblockLocationUpdate(SkyblockLocationUpdateEvent event) {
         stopLocationScan();
 
-        currentStage = GolemStage.UNDEFINED;
-        currentLocation = GolemLocation.UNDEFINED;
+        isAboutToSpawn = false;
+        predictedSpawnTimeMillis = -1;
+
+        if (isFightActive) {
+            isFightActive = false;
+            sees.dispatch(new ProtectorFightEndEvent(true));
+        }
+
+        if (currentStage != GolemStage.UNDEFINED) {
+            sees.dispatch(new ProtectorStageUpdateEvent(currentStage, GolemStage.UNDEFINED));
+            currentStage = GolemStage.UNDEFINED;
+        }
+        if (currentLocation != GolemLocation.UNDEFINED) {
+            sees.dispatch(new ProtectorLocationUpdateEvent(currentLocation, GolemLocation.UNDEFINED));
+            currentLocation = GolemLocation.UNDEFINED;
+        }
     }
 
     @SEventListener
@@ -66,28 +83,21 @@ public class GolemManager implements SListener {
         if (message.isEmpty()) return;
 
         if (RegexUtils.matches(STAGE_UPDATE_PATTERN, message)) {
-            System.out.println("==== Golem stage update (kill counter milestone).");
+            sees.dispatch(new ProtectorMilestoneReachedEvent());
         } else if (RegexUtils.matches(STAGE_UPDATE_5000_PATTERN, message)) {
-            System.out.println("==== Golem stage update (5000 kills).");
+            isAboutToSpawn = true;
+            predictedSpawnTimeMillis = System.currentTimeMillis() + GOLEM_SPAWN_DURATION;
 
-            Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
-            Style subtitleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFFFFF)).withItalic(true);
-
-            Text title = TextUtils.withStyle(Text.of("Stage 5 Reached"), titleStyle);
-            Text subtitle = TextUtils.withStyle(Text.of("The End Stone Protector will spawn in ~20 seconds!"), subtitleStyle);
-
-            MinecraftClient client = MinecraftClient.getInstance();
-            client.inGameHud.setTitleTicks(0, 20 * 5, 20 * 2);
-            client.inGameHud.setTitle(title);
-            client.inGameHud.setSubtitle(subtitle);
-
-            SoundEvent sound = SoundEvents.BLOCK_ANVIL_LAND;
-            SoundUtils.playOnMaster(sound, 1.0f, 1.0f);
-
+            sees.dispatch(new ProtectorMilestoneReachedEvent());
+            sees.dispatch(new ProtectorAboutToSpawnEvent(predictedSpawnTimeMillis));
         } else if (RegexUtils.matches(SPAWN_PATTERN, message)) {
-            System.out.println("==== Golem stage update (protector spawn).");
+            isFightActive = true;
+            predictedSpawnTimeMillis = -1;
+
+            sees.dispatch(new ProtectorFightStartEvent());
         } else if (RegexUtils.matches(DEATH_PATTERN, message)) {
-            System.out.println("==== Golem stage update (protector death).");
+            isFightActive = false;
+            sees.dispatch(new ProtectorFightEndEvent(false));
         }
     }
 
@@ -102,9 +112,16 @@ public class GolemManager implements SListener {
 
         GolemStage detectedStage = SkyblockUtils.getCurrentGolemStage(displayNames);
         if (detectedStage == null || detectedStage == currentStage) return;
+
+        GolemStage previousStage = currentStage;
         currentStage = detectedStage;
 
-        if (currentStage == GolemStage.UNDEFINED || currentStage == GolemStage.RESTING) stopLocationScan();
+        sees.dispatch(new ProtectorStageUpdateEvent(previousStage, currentStage));
+    }
+
+    @SEventListener
+    private void onProtectorStageUpdate(ProtectorStageUpdateEvent event) {
+        if (event.stage() == GolemStage.UNDEFINED || event.stage() == GolemStage.RESTING) stopLocationScan();
         else startLocationScan();
     }
 
@@ -122,34 +139,31 @@ public class GolemManager implements SListener {
 
     private void performLocationScan() {
         if (!scanningForLocation) return;
-        GolemLocation location = SkyblockUtils.getCurrentGolemLocation();
 
-        if (location != GolemLocation.UNDEFINED) {
-            GolemLocation previousLocation = currentLocation;
-            currentLocation = location;
-            scanningForLocation = false;
+        // Shouldn't happen but just in case
+        if (!hypixelManager.isInTheEnd()) {
+            stopLocationScan();
+            return;
+        }
 
-            if (currentLocation != previousLocation) {
-                // TODO - Dispatch event
+        GolemLocation detectedLocation = SkyblockUtils.getCurrentGolemLocation();
+        if (detectedLocation == GolemLocation.UNDEFINED) {
+            scanCounter++;
 
-//                Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
-//                Style subtitleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFFFFF)).withBold(false);
-//                Style locationStyle = Style.EMPTY.withColor(TextColor.fromRgb(0x55FF55)).withItalic(true);
-//
-//                MutableText title = TextUtils.withStyle(Text.of("\nProtector Location Detected"), titleStyle);
-//                MutableText subtitle = TextUtils.withStyle(Text.of("Location: "), subtitleStyle).append(TextUtils.withStyle(Text.of(location.locationName()), locationStyle));
-//
-//                PlayerUtils.sendMessage(title.append(Text.of("\n")).append(subtitle).append(Text.of("\n")), false);
-            }
+            taskManager.addTask(new RunLaterTask(() -> {
+                if (scanningForLocation) performLocationScan();
+            }, 20 * 2), TaskManager.TickPhase.PLAYER_TAIL);
 
             return;
         }
 
-        scanCounter++;
+        scanningForLocation = false;
+        if (detectedLocation == currentLocation) return;
 
-        taskManager.addTask(new RunLaterTask(() -> {
-            if (scanningForLocation) performLocationScan();
-        }, 20 * 2), TaskManager.TickPhase.PLAYER_TAIL);
+        GolemLocation previousLocation = currentLocation;
+        currentLocation = detectedLocation;
+
+        sees.dispatch(new ProtectorLocationUpdateEvent(previousLocation, currentLocation));
     }
 
     public boolean scanningForLocation() {
