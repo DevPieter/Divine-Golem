@@ -7,9 +7,9 @@ import nl.devpieter.sees.listener.SListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestListener implements SListener {
+public class DebugListener implements SListener {
 
-    private final Logger logger = LoggerFactory.getLogger(TestListener.class);
+    private final Logger logger = LoggerFactory.getLogger(DebugListener.class);
 
     @SEventListener
     private void onProtectorAboutToSpawn(ProtectorAboutToSpawnEvent event) {

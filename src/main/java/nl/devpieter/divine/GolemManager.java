@@ -29,7 +29,7 @@ public class GolemManager implements SListener {
     private final Pattern SPAWN_PATTERN = Pattern.compile("BEWARE - An End Stone Protector has risen!", Pattern.CASE_INSENSITIVE);
     private final Pattern DEATH_PATTERN = Pattern.compile("END STONE PROTECTOR DOWN!", Pattern.CASE_INSENSITIVE);
 
-    private final long GOLEM_SPAWN_DURATION = 20 * 1000L;
+    private final long GOLEM_SPAWN_DELAY = 20 * 1000L;
 
     private final HypixelManager hypixelManager = HypixelManager.getInstance();
     private final TaskManager taskManager = TaskManager.getInstance();
@@ -86,14 +86,15 @@ public class GolemManager implements SListener {
             sees.dispatch(new ProtectorMilestoneReachedEvent());
         } else if (RegexUtils.matches(STAGE_UPDATE_5000_PATTERN, message)) {
             isAboutToSpawn = true;
-            predictedSpawnTimeMillis = System.currentTimeMillis() + GOLEM_SPAWN_DURATION;
+            predictedSpawnTimeMillis = System.currentTimeMillis() + GOLEM_SPAWN_DELAY;
 
             sees.dispatch(new ProtectorMilestoneReachedEvent());
             sees.dispatch(new ProtectorAboutToSpawnEvent(predictedSpawnTimeMillis));
         } else if (RegexUtils.matches(SPAWN_PATTERN, message)) {
-            isFightActive = true;
+            isAboutToSpawn = false;
             predictedSpawnTimeMillis = -1;
 
+            isFightActive = true;
             sees.dispatch(new ProtectorFightStartEvent());
         } else if (RegexUtils.matches(DEATH_PATTERN, message)) {
             isFightActive = false;
@@ -164,22 +165,6 @@ public class GolemManager implements SListener {
         currentLocation = detectedLocation;
 
         sees.dispatch(new ProtectorLocationUpdateEvent(previousLocation, currentLocation));
-    }
-
-    public boolean scanningForLocation() {
-        return scanningForLocation;
-    }
-
-    public int scanCounter() {
-        return scanCounter;
-    }
-
-    public GolemStage currentStage() {
-        return currentStage;
-    }
-
-    public GolemLocation currentLocation() {
-        return currentLocation;
     }
 
     public String getFormattedStageText() {
