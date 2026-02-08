@@ -28,7 +28,7 @@ You can download Divine Golem on Modrinth: [Download Divine Golem](https://modri
 ## Features
 
 - **Stage 5 Notifications**: Get notified when the End Stone Protector reaches stage 5.
-- **Location Detection**: Detects the location of the End Stone Protector and sends it in chat.
+- **Location and Stage Display**: Always know where the End Stone Protector is and which stage it is at.
 
 ## Description
 
@@ -38,7 +38,7 @@ early stages of development and is by far not complete.
 ## Roadmap
 
 - [x] Basic Golem Detection
-- [ ] HUD Overlay
+- [X] Basic HUD Overlay
 - [ ] Loot Detection and Quality Calculation
 - [ ] Fight Statistics (e.g. DPS, Time, etc.)
 - [ ] Warp Hotkeys
