@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
@@ -19,7 +18,6 @@ import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
 import nl.devpieter.utilize.task.TaskManager;
 import nl.devpieter.utilize.task.tasks.RunLaterTask;
-import nl.devpieter.utilize.utils.minecraft.PlayerUtils;
 import nl.devpieter.utilize.utils.minecraft.SoundUtils;
 import nl.devpieter.utilize.utils.minecraft.TextUtils;
 
@@ -134,14 +132,14 @@ public class GolemManager implements SListener {
             if (currentLocation != previousLocation) {
                 // TODO - Dispatch event
 
-                Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
-                Style subtitleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFFFFF)).withBold(false);
-                Style locationStyle = Style.EMPTY.withColor(TextColor.fromRgb(0x55FF55)).withItalic(true);
-
-                MutableText title = TextUtils.withStyle(Text.of("\nProtector Location Detected"), titleStyle);
-                MutableText subtitle = TextUtils.withStyle(Text.of("Location: "), subtitleStyle).append(TextUtils.withStyle(Text.of(location.locationName()), locationStyle));
-
-                PlayerUtils.sendMessage(title.append(Text.of("\n")).append(subtitle).append(Text.of("\n")), false);
+//                Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
+//                Style subtitleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFFFFF)).withBold(false);
+//                Style locationStyle = Style.EMPTY.withColor(TextColor.fromRgb(0x55FF55)).withItalic(true);
+//
+//                MutableText title = TextUtils.withStyle(Text.of("\nProtector Location Detected"), titleStyle);
+//                MutableText subtitle = TextUtils.withStyle(Text.of("Location: "), subtitleStyle).append(TextUtils.withStyle(Text.of(location.locationName()), locationStyle));
+//
+//                PlayerUtils.sendMessage(title.append(Text.of("\n")).append(subtitle).append(Text.of("\n")), false);
             }
 
             return;
@@ -152,5 +150,34 @@ public class GolemManager implements SListener {
         taskManager.addTask(new RunLaterTask(() -> {
             if (scanningForLocation) performLocationScan();
         }, 20 * 2), TaskManager.TickPhase.PLAYER_TAIL);
+    }
+
+    public boolean scanningForLocation() {
+        return scanningForLocation;
+    }
+
+    public int scanCounter() {
+        return scanCounter;
+    }
+
+    public GolemStage currentStage() {
+        return currentStage;
+    }
+
+    public GolemLocation currentLocation() {
+        return currentLocation;
+    }
+
+    public String getFormattedStageText() {
+        if (currentStage == GolemStage.UNDEFINED) return "N/A";
+        return String.format("%s / %s", currentStage.stageName(), currentStage.stageNumber());
+    }
+
+    public String getFormattedLocationText() {
+        if (currentStage == GolemStage.RESTING) return "N/A";
+        if (scanningForLocation) return String.format("Scanning%s", ".".repeat(scanCounter % 4));
+
+        if (currentLocation == GolemLocation.UNDEFINED) return "N/A";
+        return currentLocation.locationName();
     }
 }
