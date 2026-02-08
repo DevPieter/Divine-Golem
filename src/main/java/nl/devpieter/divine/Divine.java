@@ -11,11 +11,11 @@ public class Divine implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         Sees sees = Sees.getSharedInstance();
-
         sees.subscribe(HypixelManager.getInstance());
         sees.subscribe(GolemManager.getInstance());
 
-        PacketManager.getInstance().subscribe(new GameJoinPacketListener());
-        PacketManager.getInstance().subscribe(new PlayerListPacketListener());
+        PacketManager packetManager = PacketManager.getInstance();
+        packetManager.subscribe(new GameJoinPacketListener());
+        packetManager.subscribe(new PlayerListPacketListener());
     }
 }
