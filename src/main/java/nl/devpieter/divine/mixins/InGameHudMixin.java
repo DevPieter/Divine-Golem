@@ -56,6 +56,11 @@ public abstract class InGameHudMixin {
         lines.add(formatLine("Stage: ", golemManager.getFormattedStageText()));
         lines.add(formatLine("Location: ", golemManager.getFormattedLocationText()));
 
+        if (golemManager.isAboutToSpawn()) {
+            lines.add(Text.empty());
+            lines.add(formatLine("Spawns In: ", golemManager.getFormattedSpawnText()));
+        }
+
         Text titleText = TextUtils.withStyle("Divine Golem Tracker", TITLE_STYLE);
         drawDynamicBox(context, 20, 20, BOX_BACKGROUND_COLOR, titleText, lines, textRenderer);
     }

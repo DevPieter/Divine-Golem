@@ -7,9 +7,11 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
+import nl.devpieter.divine.enums.GolemStage;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorAboutToSpawnEvent;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorFightEndEvent;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorFightStartEvent;
+import nl.devpieter.divine.events.skyblock.protector.ProtectorStageUpdateEvent;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.utils.minecraft.ClientUtils;
@@ -17,10 +19,25 @@ import nl.devpieter.utilize.utils.minecraft.PlayerUtils;
 import nl.devpieter.utilize.utils.minecraft.SoundUtils;
 import nl.devpieter.utilize.utils.minecraft.TextUtils;
 
-public class ProtectorListener implements SListener {
+public class ProtectorFightListener implements SListener {
 
     private long fightRealStartTime = -1;
     private long fightInGameStartTime = -1;
+
+    @SEventListener
+    private void onProtectorStageUpdate(ProtectorStageUpdateEvent event) {
+        if (event.stage() != GolemStage.AWAKENING) return;
+
+        Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
+        Text title = TextUtils.withStyle(Text.of("Stage 4 Reached"), titleStyle);
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        client.inGameHud.setTitleTicks(0, 20 * 5, 20 * 2);
+        client.inGameHud.setTitle(title);
+
+        SoundEvent sound = SoundEvents.BLOCK_ANVIL_LAND;
+        SoundUtils.playOnMaster(sound, 1.0f, 1.0f);
+    }
 
     @SEventListener
     private void onProtectorAboutToSpawn(ProtectorAboutToSpawnEvent event) {

@@ -16,6 +16,7 @@ import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
 import nl.devpieter.utilize.task.TaskManager;
 import nl.devpieter.utilize.task.tasks.RunLaterTask;
+import nl.devpieter.utilize.utils.minecraft.ClientUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,18 @@ public class GolemManager implements SListener {
         return INSTANCE;
     }
 
+    public boolean isAboutToSpawn() {
+        return isAboutToSpawn;
+    }
+
+    public GolemStage currentStage() {
+        return currentStage;
+    }
+
+    public GolemLocation currentLocation() {
+        return currentLocation;
+    }
+
     public String getFormattedStageText() {
         if (currentStage == GolemStage.UNDEFINED) return "N/A";
         return String.format("%s / %s", currentStage.stageName(), currentStage.stageNumber());
@@ -71,6 +84,34 @@ public class GolemManager implements SListener {
 
         if (currentLocation == GolemLocation.UNDEFINED) return "N/A";
         return currentLocation.locationName();
+    }
+
+//    private long fightRealStartTime = -1;
+//    private long fightInGameStartTime = -1;
+
+    private long nowRealTime = -1;
+    private long nowInGameTime = -1;
+
+    public String getFormattedSpawnText() {
+        if (!isAboutToSpawn) return "N/A";
+
+//        double secondsLeft = Math.max(0, (predictedSpawnTimeMillis - System.currentTimeMillis()) / 1000.0);
+//        return String.format("%.1f seconds", secondsLeft);
+
+        long currentRealTime = System.currentTimeMillis();
+        long currentInGameTime = ClientUtils.getWorld() == null ? -1 : ClientUtils.getWorld().getLevelProperties().getTime();
+
+        if (nowRealTime == -1 || nowInGameTime == -1) return "N/A";
+
+        long realTimeElapsed = currentRealTime - nowRealTime;
+        long inGameTimeElapsed = currentInGameTime - nowInGameTime;
+
+        long realTimeLeft = Math.max(0, GOLEM_SPAWN_DELAY - realTimeElapsed);
+        long inGameTimeLeft = Math.max(0, (GOLEM_SPAWN_DELAY / 1000) * 20 - inGameTimeElapsed);
+
+        String realTimeFormatted = String.format("%.2f", realTimeLeft / 1000.0);
+        String inGameTimeFormatted = String.format("%.2f", inGameTimeLeft / 20.0);
+        return String.format("%s seconds (Real), %s seconds (In-Game)", realTimeFormatted, inGameTimeFormatted);
     }
 
     @SEventListener
@@ -111,13 +152,19 @@ public class GolemManager implements SListener {
             sees.dispatch(new ProtectorMilestoneReachedEvent());
         } else if (RegexUtils.matches(STAGE_UPDATE_5000_PATTERN, message)) {
             isAboutToSpawn = true;
+
             predictedSpawnTimeMillis = System.currentTimeMillis() + GOLEM_SPAWN_DELAY;
+            nowRealTime = System.currentTimeMillis();
+            nowInGameTime = ClientUtils.getWorld() == null ? -1 : ClientUtils.getWorld().getLevelProperties().getTime();
 
             sees.dispatch(new ProtectorMilestoneReachedEvent());
             sees.dispatch(new ProtectorAboutToSpawnEvent(predictedSpawnTimeMillis));
         } else if (RegexUtils.matches(SPAWN_PATTERN, message)) {
             isAboutToSpawn = false;
+
             predictedSpawnTimeMillis = -1;
+            nowRealTime = -1;
+            nowInGameTime = -1;
 
             isFightActive = true;
             fightLocation = currentLocation;

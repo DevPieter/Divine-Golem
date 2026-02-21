@@ -1,10 +1,7 @@
 package nl.devpieter.divine;
 
 import net.fabricmc.api.ClientModInitializer;
-import nl.devpieter.divine.listeners.DebugListener;
-import nl.devpieter.divine.listeners.GameJoinPacketListener;
-import nl.devpieter.divine.listeners.PlayerListPacketListener;
-import nl.devpieter.divine.listeners.ProtectorListener;
+import nl.devpieter.divine.listeners.*;
 import nl.devpieter.sees.Sees;
 import nl.devpieter.utilize.managers.PacketManager;
 import nl.devpieter.utilize.utils.minecraft.ClientUtils;
@@ -18,7 +15,8 @@ public class Divine implements ClientModInitializer {
         sees.subscribe(GolemManager.getInstance());
 
         if (ClientUtils.isDevEnv()) sees.subscribe(new DebugListener());
-        sees.subscribe(new ProtectorListener());
+        sees.subscribe(new ProtectorDropListener());
+        sees.subscribe(new ProtectorFightListener());
 
         PacketManager packetManager = PacketManager.getInstance();
         packetManager.subscribe(new GameJoinPacketListener());
