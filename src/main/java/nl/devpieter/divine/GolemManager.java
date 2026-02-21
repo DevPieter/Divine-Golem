@@ -76,6 +76,7 @@ public class GolemManager implements SListener {
     @SEventListener
     private void onSkyblockLocationUpdate(SkyblockLocationUpdateEvent event) {
         stopLocationScan();
+        stopDropScan();
 
         currentDrops.clear();
 
