@@ -7,8 +7,9 @@ import nl.devpieter.divine.enums.GolemStage;
 import nl.devpieter.divine.events.PlayerListUpdateEvent;
 import nl.devpieter.divine.events.skyblock.SkyblockLocationUpdateEvent;
 import nl.devpieter.divine.events.skyblock.protector.*;
+import nl.devpieter.divine.models.GolemDrop;
+import nl.devpieter.divine.utils.GolemUtils;
 import nl.devpieter.divine.utils.RegexUtils;
-import nl.devpieter.divine.utils.SkyblockUtils;
 import nl.devpieter.sees.Sees;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
@@ -16,6 +17,7 @@ import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
 import nl.devpieter.utilize.task.TaskManager;
 import nl.devpieter.utilize.task.tasks.RunLaterTask;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -36,15 +38,20 @@ public class GolemManager implements SListener {
     private final Sees sees = Sees.getSharedInstance();
 
     private boolean scanningForLocation = false;
-    private int scanCounter = 0;
+    private int locationScanCounter = 0;
+
+    private boolean scanningForDrops = false;
+    private int dropScanCounter = 0;
 
     private GolemStage currentStage = GolemStage.UNDEFINED;
     private GolemLocation currentLocation = GolemLocation.UNDEFINED;
+    private List<GolemDrop> currentDrops = new ArrayList<>();
 
     private boolean isAboutToSpawn = false;
     private long predictedSpawnTimeMillis = -1;
 
     private boolean isFightActive = false;
+    private GolemLocation fightLocation = GolemLocation.UNDEFINED;
 
     private GolemManager() {
     }
@@ -53,9 +60,24 @@ public class GolemManager implements SListener {
         return INSTANCE;
     }
 
+    public String getFormattedStageText() {
+        if (currentStage == GolemStage.UNDEFINED) return "N/A";
+        return String.format("%s / %s", currentStage.stageName(), currentStage.stageNumber());
+    }
+
+    public String getFormattedLocationText() {
+        if (currentStage == GolemStage.RESTING) return "N/A";
+        if (scanningForLocation) return String.format("Scanning%s", ".".repeat(locationScanCounter % 4));
+
+        if (currentLocation == GolemLocation.UNDEFINED) return "N/A";
+        return currentLocation.locationName();
+    }
+
     @SEventListener
     private void onSkyblockLocationUpdate(SkyblockLocationUpdateEvent event) {
         stopLocationScan();
+
+        currentDrops.clear();
 
         isAboutToSpawn = false;
         predictedSpawnTimeMillis = -1;
@@ -64,6 +86,8 @@ public class GolemManager implements SListener {
             isFightActive = false;
             sees.dispatch(new ProtectorFightEndEvent(true));
         }
+
+        fightLocation = GolemLocation.UNDEFINED;
 
         if (currentStage != GolemStage.UNDEFINED) {
             sees.dispatch(new ProtectorStageUpdateEvent(currentStage, GolemStage.UNDEFINED));
@@ -95,10 +119,14 @@ public class GolemManager implements SListener {
             predictedSpawnTimeMillis = -1;
 
             isFightActive = true;
+            fightLocation = currentLocation;
+
             sees.dispatch(new ProtectorFightStartEvent());
         } else if (RegexUtils.matches(DEATH_PATTERN, message)) {
             isFightActive = false;
             sees.dispatch(new ProtectorFightEndEvent(false));
+
+            startDropScan();
         }
     }
 
@@ -111,7 +139,7 @@ public class GolemManager implements SListener {
                 .filter(Objects::nonNull)
                 .toList();
 
-        GolemStage detectedStage = SkyblockUtils.getCurrentGolemStage(displayNames);
+        GolemStage detectedStage = GolemUtils.getCurrentStage(displayNames);
         if (detectedStage == null || detectedStage == currentStage) return;
 
         GolemStage previousStage = currentStage;
@@ -128,14 +156,27 @@ public class GolemManager implements SListener {
 
     private void startLocationScan() {
         scanningForLocation = true;
-        scanCounter = 0;
+        locationScanCounter = 0;
 
         performLocationScan();
     }
 
+    private void startDropScan() {
+        scanningForDrops = true;
+        dropScanCounter = 0;
+
+        currentDrops.clear();
+        performDropScan();
+    }
+
     private void stopLocationScan() {
         scanningForLocation = false;
-        scanCounter = 0;
+        locationScanCounter = 0;
+    }
+
+    private void stopDropScan() {
+        scanningForDrops = false;
+        dropScanCounter = 0;
     }
 
     private void performLocationScan() {
@@ -147,9 +188,9 @@ public class GolemManager implements SListener {
             return;
         }
 
-        GolemLocation detectedLocation = SkyblockUtils.getCurrentGolemLocation();
+        GolemLocation detectedLocation = GolemUtils.getCurrentLocation();
         if (detectedLocation == GolemLocation.UNDEFINED) {
-            scanCounter++;
+            locationScanCounter++;
 
             taskManager.addTask(new RunLaterTask(() -> {
                 if (scanningForLocation) performLocationScan();
@@ -167,16 +208,37 @@ public class GolemManager implements SListener {
         sees.dispatch(new ProtectorLocationUpdateEvent(previousLocation, currentLocation));
     }
 
-    public String getFormattedStageText() {
-        if (currentStage == GolemStage.UNDEFINED) return "N/A";
-        return String.format("%s / %s", currentStage.stageName(), currentStage.stageNumber());
-    }
+    private void performDropScan() {
+        if (!scanningForDrops) return;
 
-    public String getFormattedLocationText() {
-        if (currentStage == GolemStage.RESTING) return "N/A";
-        if (scanningForLocation) return String.format("Scanning%s", ".".repeat(scanCounter % 4));
+        // Shouldn't happen but just in case
+        if (!hypixelManager.isInTheEnd()) {
+            stopDropScan();
+            return;
+        }
 
-        if (currentLocation == GolemLocation.UNDEFINED) return "N/A";
-        return currentLocation.locationName();
+        List<GolemDrop> detectedDrops = GolemUtils.findDrops(fightLocation);
+
+        if (detectedDrops.isEmpty()) {
+            dropScanCounter++;
+
+            if (dropScanCounter > 10) {
+                stopDropScan();
+
+                // TODO - Maybe send message or show notification
+                return;
+            }
+
+            taskManager.addTask(new RunLaterTask(() -> {
+                if (scanningForDrops) performDropScan();
+            }, 10), TaskManager.TickPhase.PLAYER_TAIL);
+
+            return;
+        }
+
+        scanningForDrops = false;
+        currentDrops = detectedDrops;
+
+        sees.dispatch(new ProtectorDropsFoundEvent(currentDrops));
     }
 }
