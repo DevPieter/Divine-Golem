@@ -23,6 +23,7 @@ pluginManagement {
 rootProject.buildFileName = "root.gradle"
 
 var versions = [
+        "1.21.11",
         "1.21.10"
 ]
 
