@@ -1,7 +1,7 @@
 package nl.devpieter.divine;
 
 import nl.devpieter.divine.events.ConnectToServerEvent;
-import nl.devpieter.divine.events.SkyblockLocationUpdateEvent;
+import nl.devpieter.divine.events.skyblock.SkyblockLocationUpdateEvent;
 import nl.devpieter.divine.models.HypixelLocation;
 import nl.devpieter.divine.utils.HypixelUtils;
 import nl.devpieter.sees.Sees;
@@ -57,6 +57,8 @@ public class HypixelManager implements SListener {
 
         boolean isInSkyblock = isInSkyblock();
         boolean isInTheEnd = isInTheEnd();
+
+        if (!isInSkyblock && !wasInSkyblock) return;
 
         sees.dispatch(new SkyblockLocationUpdateEvent(
                 wasInSkyblock,

@@ -1,53 +1,41 @@
 package nl.devpieter.divine.utils;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.text.Text;
+import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.text.Style;
 import net.minecraft.util.math.BlockPos;
-import nl.devpieter.divine.enums.GolemLocation;
-import nl.devpieter.divine.enums.GolemStage;
-import nl.devpieter.utilize.utils.minecraft.WorldUtils;
+import net.minecraft.util.math.Box;
+import net.minecraft.world.World;
+import nl.devpieter.divine.enums.Rarity;
+import nl.devpieter.utilize.utils.minecraft.ClientUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class SkyblockUtils {
-
-    private static final Pattern PROTECTOR_PATTERN = Pattern.compile("Protector:\\s*(\\w+)");
 
     private SkyblockUtils() {
     }
 
-    public static @Nullable GolemStage getCurrentGolemStage(@NotNull List<Text> playerListDisplayNames) {
-        for (Text displayName : playerListDisplayNames) {
-            if (displayName == null) continue;
+    public static @NotNull List<? extends ArmorStandEntity> getNearbyArmorStandsWithCustomName(@NotNull BlockPos center, float distance) {
+        if (!ClientUtils.hasWorld()) return new ArrayList<>();
 
-            String stageKey = RegexUtils.findFirstGroup(PROTECTOR_PATTERN, displayName.getString());
-            if (stageKey == null) continue;
+        World world = ClientUtils.getWorld();
+        Box searchBox = new Box(center).expand(distance);
 
-            return GolemStage.STAGE_LOOKUP.getOrDefault(stageKey.toLowerCase(), GolemStage.UNDEFINED);
-        }
-
-        return null;
+        return world.getEntitiesByClass(ArmorStandEntity.class, searchBox, entity -> {
+            if (entity.isRemoved()) return false;
+            return entity.hasCustomName();
+        });
     }
 
-    public static @Nullable GolemLocation getCurrentGolemLocation() {
-        for (GolemLocation location : GolemLocation.values()) {
-            if (location == GolemLocation.UNDEFINED) continue;
+    public static @NotNull Rarity rarityFromStyle(@Nullable Style style) {
+        if (style == null || style.getColor() == null) return Rarity.UNKNOWN;
 
-            List<BlockPos> headPositions = GolemLocation.LOCATION_HEAD_POSITIONS.get(location);
-            if (headPositions == null) continue;
+        String name = style.getColor().getName();
+        if (name == null) return Rarity.UNKNOWN;
 
-            for (BlockPos headPos : headPositions) {
-                Block block = WorldUtils.getBlockAt(headPos);
-                if (block == null || block != Blocks.PLAYER_HEAD) continue;
-
-                return location;
-            }
-        }
-
-        return GolemLocation.UNDEFINED;
+        return Rarity.COLOR_RARITY_LOOKUP.getOrDefault(name.toLowerCase(), Rarity.UNKNOWN);
     }
 }
