@@ -1,5 +1,7 @@
 package nl.devpieter.divine.config;
 
+import net.minecraft.client.MinecraftClient;
+import nl.devpieter.divine.config.screens.HudEditScreen;
 import nl.devpieter.divine.config.widget.IHudWidget;
 import nl.devpieter.divine.models.ScreenPosition;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +13,8 @@ import java.util.List;
 public class HudManager {
 
     private static final HudManager INSTANCE = new HudManager();
+
+    private final MinecraftClient client = MinecraftClient.getInstance();
 
     private final List<IHudWidget> widgets = new ArrayList<>();
     private final HashMap<String, ScreenPosition> defaultWidgetPositions = new HashMap<>();
@@ -55,11 +59,19 @@ public class HudManager {
             ScreenPosition pos = widgetPositions.get(widget.identifier());
             if (pos == null) continue;
 
-            if (x >= pos.x() && x <= pos.x() + widget.width() && y >= pos.y() && y <= pos.y() + widget.height()) {
+            if (x >= pos.x() && x <= pos.x() + widget.dummyWidth() && y >= pos.y() && y <= pos.y() + widget.dummyHeight()) {
                 return widget;
             }
         }
 
         return null;
+    }
+
+    public void openEditScreen() {
+        client.setScreen(new HudEditScreen());
+    }
+
+    public boolean shouldRender() {
+        return !(client.currentScreen instanceof HudEditScreen);
     }
 }

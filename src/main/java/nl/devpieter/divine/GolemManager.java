@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 
 public class GolemManager implements SListener {
 
+    public static final long GOLEM_SPAWN_DELAY = 20 * 1000L;
+
     private static final GolemManager INSTANCE = new GolemManager();
 
     private final Pattern STAGE_UPDATE_PATTERN = Pattern.compile("You feel a tremor from beneath the earth!", Pattern.CASE_INSENSITIVE);
@@ -38,8 +40,6 @@ public class GolemManager implements SListener {
     private final Pattern DAMAGE_ENTRY_PATTERN = Pattern.compile("^(\\d+)(?:st|nd|rd|th)\\s+Damager\\s+-\\s+(?:\\[[^\\]]+\\]\\s*)?([^-]+?)\\s+-\\s+([\\d,]+)$", Pattern.CASE_INSENSITIVE);
     private final Pattern MY_DAMAGE_PATTERN = Pattern.compile("^Your Damage: ([\\d,]+) \\(Position #(\\d+)\\)$", Pattern.CASE_INSENSITIVE);
     private final Pattern ZEALOT_CONTRIBUTION_PATTERN = Pattern.compile("^Zealots Contributed: (\\d+)/100$", Pattern.CASE_INSENSITIVE);
-
-    private final long GOLEM_SPAWN_DELAY = 20 * 1000L;
 
     private final HypixelManager hypixelManager = HypixelManager.getInstance();
     private final TaskManager taskManager = TaskManager.getInstance();
@@ -98,32 +98,16 @@ public class GolemManager implements SListener {
         return currentLocation.locationName();
     }
 
-//    private long fightRealStartTime = -1;
-//    private long fightInGameStartTime = -1;
-
+    // TODO - Rename and move
     private long nowRealTime = -1;
     private long nowInGameTime = -1;
 
-    public String getFormattedSpawnText() {
-        if (!isAboutToSpawn) return "N/A";
+    public long nowRealTime() {
+        return nowRealTime;
+    }
 
-//        double secondsLeft = Math.max(0, (predictedSpawnTimeMillis - System.currentTimeMillis()) / 1000.0);
-//        return String.format("%.1f seconds", secondsLeft);
-
-        long currentRealTime = System.currentTimeMillis();
-        long currentInGameTime = ClientUtils.getWorld() == null ? -1 : ClientUtils.getWorld().getLevelProperties().getTime();
-
-        if (nowRealTime == -1 || nowInGameTime == -1) return "N/A";
-
-        long realTimeElapsed = currentRealTime - nowRealTime;
-        long inGameTimeElapsed = currentInGameTime - nowInGameTime;
-
-        long realTimeLeft = Math.max(0, GOLEM_SPAWN_DELAY - realTimeElapsed);
-        long inGameTimeLeft = Math.max(0, (GOLEM_SPAWN_DELAY / 1000) * 20 - inGameTimeElapsed);
-
-        String realTimeFormatted = String.format("%.2f", realTimeLeft / 1000.0);
-        String inGameTimeFormatted = String.format("%.2f", inGameTimeLeft / 20.0);
-        return String.format("%s seconds (Real), %s seconds (In-Game)", realTimeFormatted, inGameTimeFormatted);
+    public long nowInGameTime() {
+        return nowInGameTime;
     }
 
     @SEventListener
@@ -219,7 +203,8 @@ public class GolemManager implements SListener {
         }
 
         Integer zealotContribution = RegexUtils.findFirstGroupAsInt(ZEALOT_CONTRIBUTION_PATTERN, message);
-        if (zealotContribution != null) currentFightBreakdown.setMyZealotContribution(new MyZealotContributionDetails(zealotContribution));
+        if (zealotContribution != null)
+            currentFightBreakdown.setMyZealotContribution(new MyZealotContributionDetails(zealotContribution));
 
         if (!currentFightBreakdown.isComplete()) return;
         matchingForFightBreakdown = false;

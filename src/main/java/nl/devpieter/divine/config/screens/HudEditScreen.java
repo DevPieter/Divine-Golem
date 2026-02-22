@@ -80,8 +80,8 @@ public class HudEditScreen extends Screen {
         newX = Math.round(newX / gridSize) * gridSize;
         newY = Math.round(newY / gridSize) * gridSize;
 
-        newX = Math.max(0, Math.min(newX, width - draggingWidget.width()));
-        newY = Math.max(0, Math.min(newY, height - draggingWidget.height()));
+        newX = Math.max(0, Math.min(newX, width - draggingWidget.dummyWidth()));
+        newY = Math.max(0, Math.min(newY, height - draggingWidget.dummyHeight()));
 
         hudManager.setWidgetPosition(draggingWidget.identifier(), new ScreenPosition(newX, newY));
     }
