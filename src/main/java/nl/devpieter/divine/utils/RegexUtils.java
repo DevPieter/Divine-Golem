@@ -19,4 +19,15 @@ public class RegexUtils {
         Matcher matcher = pattern.matcher(input);
         return matcher.find() ? matcher.group(1) : null;
     }
+
+    public static @Nullable Integer findFirstGroupAsInt(@NotNull Pattern pattern, String input) {
+        String group = findFirstGroup(pattern, input);
+        if (group == null) return null;
+
+        try {
+            return Integer.parseInt(group);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }

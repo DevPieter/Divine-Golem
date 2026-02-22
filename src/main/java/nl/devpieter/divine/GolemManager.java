@@ -8,6 +8,7 @@ import nl.devpieter.divine.events.PlayerListUpdateEvent;
 import nl.devpieter.divine.events.skyblock.SkyblockLocationUpdateEvent;
 import nl.devpieter.divine.events.skyblock.protector.*;
 import nl.devpieter.divine.models.GolemDrop;
+import nl.devpieter.divine.models.fightBreakdown.*;
 import nl.devpieter.divine.utils.GolemUtils;
 import nl.devpieter.divine.utils.RegexUtils;
 import nl.devpieter.sees.Sees;
@@ -21,6 +22,7 @@ import nl.devpieter.utilize.utils.minecraft.ClientUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GolemManager implements SListener {
@@ -31,6 +33,11 @@ public class GolemManager implements SListener {
     private final Pattern STAGE_UPDATE_5000_PATTERN = Pattern.compile("The ground begins to shake as an End Stone Protector rises from below!", Pattern.CASE_INSENSITIVE);
     private final Pattern SPAWN_PATTERN = Pattern.compile("BEWARE - An End Stone Protector has risen!", Pattern.CASE_INSENSITIVE);
     private final Pattern DEATH_PATTERN = Pattern.compile("END STONE PROTECTOR DOWN!", Pattern.CASE_INSENSITIVE);
+
+    private final Pattern FINAL_BLOW_PATTERN = Pattern.compile("^(?:\\[[^\\]]+\\]\\s*)?(.+?)\\s+dealt the final blow\\.$", Pattern.CASE_INSENSITIVE);
+    private final Pattern DAMAGE_ENTRY_PATTERN = Pattern.compile("^(\\d+)(?:st|nd|rd|th)\\s+Damager\\s+-\\s+(?:\\[[^\\]]+\\]\\s*)?([^-]+?)\\s+-\\s+([\\d,]+)$", Pattern.CASE_INSENSITIVE);
+    private final Pattern MY_DAMAGE_PATTERN = Pattern.compile("^Your Damage: ([\\d,]+) \\(Position #(\\d+)\\)$", Pattern.CASE_INSENSITIVE);
+    private final Pattern ZEALOT_CONTRIBUTION_PATTERN = Pattern.compile("^Zealots Contributed: (\\d+)/100$", Pattern.CASE_INSENSITIVE);
 
     private final long GOLEM_SPAWN_DELAY = 20 * 1000L;
 
@@ -44,9 +51,14 @@ public class GolemManager implements SListener {
     private boolean scanningForDrops = false;
     private int dropScanCounter = 0;
 
+    private boolean matchingForFightBreakdown = false;
+    private long fightBreakdownMatchingStartTime = -1;
+
     private GolemStage currentStage = GolemStage.UNDEFINED;
     private GolemLocation currentLocation = GolemLocation.UNDEFINED;
+
     private List<GolemDrop> currentDrops = new ArrayList<>();
+    private ProtectorFightBreakdown currentFightBreakdown = null;
 
     private boolean isAboutToSpawn = false;
     private long predictedSpawnTimeMillis = -1;
@@ -118,6 +130,7 @@ public class GolemManager implements SListener {
     private void onSkyblockLocationUpdate(SkyblockLocationUpdateEvent event) {
         stopLocationScan();
         stopDropScan();
+        cancelBreakdownMatching();
 
         currentDrops.clear();
 
@@ -175,7 +188,42 @@ public class GolemManager implements SListener {
             sees.dispatch(new ProtectorFightEndEvent(false));
 
             startDropScan();
+            startBreakdownMatching();
         }
+
+        if (matchingForFightBreakdown) {
+            if (System.currentTimeMillis() - fightBreakdownMatchingStartTime > 10000) matchingForFightBreakdown = false;
+            else matchFightBreakdownMessage(message);
+        }
+    }
+
+    private void matchFightBreakdownMessage(String message) {
+        String finalBlowPlayer = RegexUtils.findFirstGroup(FINAL_BLOW_PATTERN, message);
+        if (finalBlowPlayer != null) currentFightBreakdown.setFinalBlow(new FinalBlowDetails(finalBlowPlayer));
+
+        Matcher damageEntryMatcher = DAMAGE_ENTRY_PATTERN.matcher(message);
+        if (damageEntryMatcher.matches()) {
+            int position = Integer.parseInt(damageEntryMatcher.group(1));
+            String playerName = damageEntryMatcher.group(2);
+            int damage = Integer.parseInt(damageEntryMatcher.group(3).replace(",", ""));
+
+            currentFightBreakdown.addDamageEntry(new FightDamageEntry(playerName, position, damage));
+        }
+
+        var myDamageMatcher = MY_DAMAGE_PATTERN.matcher(message);
+        if (myDamageMatcher.matches()) {
+            int damage = Integer.parseInt(myDamageMatcher.group(1).replaceAll(",", ""));
+            int position = Integer.parseInt(myDamageMatcher.group(2));
+
+            currentFightBreakdown.setMyDamage(new MyDamageDetails(damage, position));
+        }
+
+        Integer zealotContribution = RegexUtils.findFirstGroupAsInt(ZEALOT_CONTRIBUTION_PATTERN, message);
+        if (zealotContribution != null) currentFightBreakdown.setMyZealotContribution(new MyZealotContributionDetails(zealotContribution));
+
+        if (!currentFightBreakdown.isComplete()) return;
+        matchingForFightBreakdown = false;
+        sees.dispatch(new ProtectorFightBreakdownReadyEvent(currentFightBreakdown));
     }
 
     @SEventListener
@@ -209,6 +257,11 @@ public class GolemManager implements SListener {
         performLocationScan();
     }
 
+    private void stopLocationScan() {
+        scanningForLocation = false;
+        locationScanCounter = 0;
+    }
+
     private void startDropScan() {
         scanningForDrops = true;
         dropScanCounter = 0;
@@ -217,14 +270,23 @@ public class GolemManager implements SListener {
         performDropScan();
     }
 
-    private void stopLocationScan() {
-        scanningForLocation = false;
-        locationScanCounter = 0;
-    }
-
     private void stopDropScan() {
         scanningForDrops = false;
         dropScanCounter = 0;
+    }
+
+    private void startBreakdownMatching() {
+        matchingForFightBreakdown = true;
+        fightBreakdownMatchingStartTime = System.currentTimeMillis();
+
+        currentFightBreakdown = new ProtectorFightBreakdown();
+    }
+
+    private void cancelBreakdownMatching() {
+        matchingForFightBreakdown = false;
+        fightBreakdownMatchingStartTime = -1;
+
+        currentFightBreakdown = null;
     }
 
     private void performLocationScan() {
