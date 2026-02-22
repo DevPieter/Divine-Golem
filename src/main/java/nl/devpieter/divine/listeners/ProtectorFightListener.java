@@ -8,10 +8,9 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import nl.devpieter.divine.enums.GolemStage;
-import nl.devpieter.divine.events.skyblock.protector.ProtectorAboutToSpawnEvent;
-import nl.devpieter.divine.events.skyblock.protector.ProtectorFightEndEvent;
-import nl.devpieter.divine.events.skyblock.protector.ProtectorFightStartEvent;
-import nl.devpieter.divine.events.skyblock.protector.ProtectorStageUpdateEvent;
+import nl.devpieter.divine.events.skyblock.protector.*;
+import nl.devpieter.divine.models.fightBreakdown.ProtectorFightBreakdown;
+import nl.devpieter.divine.models.fightBreakdown.FightDamageEntry;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.utils.minecraft.ClientUtils;
@@ -23,6 +22,26 @@ public class ProtectorFightListener implements SListener {
 
     private long fightRealStartTime = -1;
     private long fightInGameStartTime = -1;
+
+    @SEventListener
+    private void onProtectorFightBreakdownReady(ProtectorFightBreakdownReadyEvent event){
+        ProtectorFightBreakdown breakdown = event.breakdown();
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("================== DAMAGE BREAKDOWN =================\n");
+        sb.append("Final Blow: ").append(breakdown.finalBlow().playerName()).append("\n\n");
+        sb.append("Damage Breakdown:\n");
+        for (FightDamageEntry entry : breakdown.damageEntries()) {
+            sb.append(String.format("%d. %s - %,d damage%n", entry.position(), entry.playerName(), entry.damage()));
+        }
+        sb.append(String.format("%nYour Damage: %,d (Position #%d)%n", breakdown.myDamage().damage(), breakdown.myDamage().position()));
+        sb.append(String.format("Zealots Contributed: %d/100%n", breakdown.myZealotContribution().contribution()));
+
+        System.out.println(sb);
+        MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
+
+        PlayerUtils.sendMessage(Text.of("Damage breakdown copied to clipboard!"), true);
+    }
 
     @SEventListener
     private void onProtectorStageUpdate(ProtectorStageUpdateEvent event) {
