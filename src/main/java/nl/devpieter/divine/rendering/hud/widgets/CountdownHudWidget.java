@@ -15,7 +15,7 @@ import java.util.List;
 
 public class CountdownHudWidget extends HudWidget {
 
-    private static final long DIFFERENCE_DISPLAY_DURATION = 3_000;
+    private static final long DIFFERENCE_DISPLAY_DURATION = 2_000;
 
     private final MinecraftClient client = MinecraftClient.getInstance();
 
@@ -111,9 +111,9 @@ public class CountdownHudWidget extends HudWidget {
     }
 
     private List<Text> getOptionalDifferenceLines() {
-        if (!hasNotableDifference()) return List.of();
+        if (!hasNotableDifference() && !isShowingDifference) return List.of();
 
-        if (!isShowingDifference) {
+        if (hasNotableDifference()) {
             isShowingDifference = true;
             differenceShowStartTime = System.currentTimeMillis();
         }
