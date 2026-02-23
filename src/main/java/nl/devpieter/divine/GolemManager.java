@@ -11,13 +11,13 @@ import nl.devpieter.divine.models.GolemDrop;
 import nl.devpieter.divine.models.fightBreakdown.*;
 import nl.devpieter.divine.utils.GolemUtils;
 import nl.devpieter.divine.utils.RegexUtils;
+import nl.devpieter.divine.utils.WorldUtils;
 import nl.devpieter.sees.Sees;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
 import nl.devpieter.utilize.task.TaskManager;
 import nl.devpieter.utilize.task.tasks.RunLaterTask;
-import nl.devpieter.utilize.utils.minecraft.ClientUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,13 @@ public class GolemManager implements SListener {
     private ProtectorFightBreakdown currentFightBreakdown = null;
 
     private boolean isAboutToSpawn = false;
-    private long predictedSpawnTimeMillis = -1;
+
+    private long fightAboutToStartRealTime = -1;
+    private long fightAboutToStartInGameTime = -1;
+    private long fightStartRealTime = -1;
+    private long fightStartInGameTime = -1;
+    private long fightEndRealTime = -1;
+    private long fightEndInGameTime = -1;
 
     private boolean isFightActive = false;
     private GolemLocation fightLocation = GolemLocation.UNDEFINED;
@@ -73,16 +79,40 @@ public class GolemManager implements SListener {
         return INSTANCE;
     }
 
-    public boolean isAboutToSpawn() {
-        return isAboutToSpawn;
-    }
-
     public GolemStage currentStage() {
         return currentStage;
     }
 
     public GolemLocation currentLocation() {
         return currentLocation;
+    }
+
+    public boolean isAboutToSpawn() {
+        return isAboutToSpawn;
+    }
+
+    public long fightAboutToStartRealTime() {
+        return fightAboutToStartRealTime;
+    }
+
+    public long fightAboutToStartInGameTime() {
+        return fightAboutToStartInGameTime;
+    }
+
+    public long fightStartRealTime() {
+        return fightStartRealTime;
+    }
+
+    public long fightStartInGameTime() {
+        return fightStartInGameTime;
+    }
+
+    public long fightEndRealTime() {
+        return fightEndRealTime;
+    }
+
+    public long fightEndInGameTime() {
+        return fightEndInGameTime;
     }
 
     public String getFormattedStageText() {
@@ -96,18 +126,6 @@ public class GolemManager implements SListener {
         return currentLocation.locationName();
     }
 
-    // TODO - Rename and move
-    private long nowRealTime = -1;
-    private long nowInGameTime = -1;
-
-    public long nowRealTime() {
-        return nowRealTime;
-    }
-
-    public long nowInGameTime() {
-        return nowInGameTime;
-    }
-
     @SEventListener
     private void onSkyblockLocationUpdate(SkyblockLocationUpdateEvent event) {
         stopLocationScan();
@@ -117,7 +135,13 @@ public class GolemManager implements SListener {
         currentDrops.clear();
 
         isAboutToSpawn = false;
-        predictedSpawnTimeMillis = -1;
+
+        fightAboutToStartRealTime = -1;
+        fightAboutToStartInGameTime = -1;
+        fightStartRealTime = -1;
+        fightStartInGameTime = -1;
+        fightEndRealTime = -1;
+        fightEndInGameTime = -1;
 
         if (isFightActive) {
             isFightActive = false;
@@ -140,26 +164,26 @@ public class GolemManager implements SListener {
         if (RegexUtils.matches(STAGE_UPDATE_PATTERN, message)) {
             sees.dispatch(new ProtectorMilestoneReachedEvent());
         } else if (RegexUtils.matches(STAGE_UPDATE_5000_PATTERN, message)) {
+            fightAboutToStartRealTime = System.currentTimeMillis();
+            fightAboutToStartInGameTime = WorldUtils.getWorldTime();
+
             isAboutToSpawn = true;
 
-            predictedSpawnTimeMillis = System.currentTimeMillis() + GOLEM_SPAWN_DELAY;
-            nowRealTime = System.currentTimeMillis();
-            nowInGameTime = ClientUtils.getWorld() == null ? -1 : ClientUtils.getWorld().getLevelProperties().getTime();
-
             sees.dispatch(new ProtectorMilestoneReachedEvent());
-            sees.dispatch(new ProtectorAboutToSpawnEvent(predictedSpawnTimeMillis));
+            sees.dispatch(new ProtectorAboutToSpawnEvent());
         } else if (RegexUtils.matches(SPAWN_PATTERN, message)) {
+            fightStartRealTime = System.currentTimeMillis();
+            fightStartInGameTime = WorldUtils.getWorldTime();
+
             isAboutToSpawn = false;
-
-            predictedSpawnTimeMillis = -1;
-            nowRealTime = -1;
-            nowInGameTime = -1;
-
             isFightActive = true;
             fightLocation = currentLocation;
 
             sees.dispatch(new ProtectorFightStartEvent());
         } else if (RegexUtils.matches(DEATH_PATTERN, message)) {
+            fightEndRealTime = System.currentTimeMillis();
+            fightEndInGameTime = WorldUtils.getWorldTime();
+
             isFightActive = false;
             sees.dispatch(new ProtectorFightEndEvent(false));
 

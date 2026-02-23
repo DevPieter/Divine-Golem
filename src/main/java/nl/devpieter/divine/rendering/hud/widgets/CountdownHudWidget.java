@@ -7,6 +7,7 @@ import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.HypixelManager;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
 import nl.devpieter.divine.utils.FormatUtils;
+import nl.devpieter.divine.utils.WorldUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -14,10 +15,20 @@ import java.util.List;
 
 public class CountdownHudWidget extends HudWidget {
 
+    private static final long DIFFERENCE_DISPLAY_DURATION = 3_000;
+
     private final MinecraftClient client = MinecraftClient.getInstance();
 
     private final HypixelManager hypixelManager = HypixelManager.getInstance();
     private final GolemManager golemManager = GolemManager.getInstance();
+
+    private boolean isShowingDifference = false;
+    private long differenceShowStartTime = -1;
+
+    @Override
+    public @NotNull String name() {
+        return "Spawn Countdown";
+    }
 
     @Override
     public @NotNull String identifier() {
@@ -35,6 +46,7 @@ public class CountdownHudWidget extends HudWidget {
         lines.add(FormatUtils.formatTranslatable("text.divine.widget.countdown.spawns_in", labelStyle, valueStyle, getFormattedRealTime()));
         lines.add(FormatUtils.formatTranslatable("text.divine.widget.countdown.tps_adjusted", labelStyle, valueStyle, getFormattedInGameTime()));
 
+        lines.addAll(getOptionalDifferenceLines());
         drawDynamicBox(context, 0, 0, backgroundColor, lines, client.textRenderer);
     }
 
@@ -56,30 +68,78 @@ public class CountdownHudWidget extends HudWidget {
     private List<Text> getDummyLines() {
         return List.of(
                 FormatUtils.formatTranslatable("text.divine.widget.countdown.spawns_in", labelStyle, valueStyle, "16.1 seconds"),
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.tps_adjusted", labelStyle, valueStyle, "16.7 seconds")
+                FormatUtils.formatTranslatable("text.divine.widget.countdown.tps_adjusted", labelStyle, valueStyle, "16.7 seconds"),
+                Text.empty(),
+                FormatUtils.formatTranslatable("text.divine.widget.countdown.difference", labelStyle, valueStyle, "+0.60 seconds")
         );
     }
 
-    private String getFormattedRealTime() {
-        long nowRealTime = golemManager.nowRealTime();
-        if (nowRealTime == -1) return "N/A";
+    private double getRealTimeSecondsLeft() {
+        long nowRealTime = golemManager.fightAboutToStartRealTime();
+        if (nowRealTime == -1) return -1;
 
         long currentRealTime = System.currentTimeMillis();
         long realTimeElapsed = currentRealTime - nowRealTime;
-        long realTimeLeft = Math.max(0, GolemManager.GOLEM_SPAWN_DELAY - realTimeElapsed);
+        return Math.max(0, (GolemManager.GOLEM_SPAWN_DELAY - realTimeElapsed) / 1000.0);
+    }
 
-        return getFormattedTime(realTimeLeft / 1000.0);
+    private double getInGameTimeSecondsLeft() {
+        long nowInGameTime = golemManager.fightAboutToStartInGameTime();
+        if (nowInGameTime == -1) return -1;
+
+        long currentInGameTime = WorldUtils.getWorldTime();
+        long inGameTimeElapsed = currentInGameTime - nowInGameTime;
+        return Math.max(0, (((double) GolemManager.GOLEM_SPAWN_DELAY / 1000) * 20 - inGameTimeElapsed) / 20.0);
+    }
+
+    private double getDifference() {
+        double realTimeSecondsLeft = getRealTimeSecondsLeft();
+        double inGameTimeSecondsLeft = getInGameTimeSecondsLeft();
+
+        if (realTimeSecondsLeft == -1 || inGameTimeSecondsLeft == -1) return 0.0;
+        return realTimeSecondsLeft - inGameTimeSecondsLeft;
+    }
+
+    private String getFormattedRealTime() {
+        double realTimeSecondsLeft = getRealTimeSecondsLeft();
+        return realTimeSecondsLeft == -1 ? "N/A" : getFormattedTime(realTimeSecondsLeft);
     }
 
     private String getFormattedInGameTime() {
-        long nowInGameTime = golemManager.nowInGameTime();
-        if (nowInGameTime == -1 || MinecraftClient.getInstance().world == null) return "N/A";
+        double inGameTimeSecondsLeft = getInGameTimeSecondsLeft();
+        return inGameTimeSecondsLeft == -1 ? "N/A" : getFormattedTime(inGameTimeSecondsLeft);
+    }
 
-        long currentInGameTime = MinecraftClient.getInstance().world.getLevelProperties().getTime();
-        long inGameTimeElapsed = currentInGameTime - nowInGameTime;
-        long inGameTimeLeft = Math.max(0, (GolemManager.GOLEM_SPAWN_DELAY / 1000) * 20 - inGameTimeElapsed);
+    private List<Text> getOptionalDifferenceLines() {
+        if (!hasNotableDifference()) return List.of();
 
-        return getFormattedTime(inGameTimeLeft / 20.0);
+        if (!isShowingDifference) {
+            isShowingDifference = true;
+            differenceShowStartTime = System.currentTimeMillis();
+        }
+
+        if (System.currentTimeMillis() - differenceShowStartTime >= DIFFERENCE_DISPLAY_DURATION) {
+            isShowingDifference = false;
+            return List.of();
+        }
+
+        return List.of(
+                Text.empty(),
+                FormatUtils.formatTranslatable("text.divine.widget.countdown.difference", labelStyle, valueStyle, getFormattedDifference())
+        );
+    }
+
+    private boolean hasNotableDifference() {
+        return Math.abs(getDifference()) >= 1.0;
+    }
+
+    private String getFormattedDifference() {
+        double difference = getDifference();
+
+        boolean isAhead = difference < 0;
+        String sign = isAhead ? "-" : "+";
+
+        return sign + getFormattedTime(Math.abs(difference));
     }
 
     private String getFormattedTime(double time) {

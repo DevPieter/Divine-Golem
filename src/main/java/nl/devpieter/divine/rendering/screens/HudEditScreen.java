@@ -56,7 +56,15 @@ public class HudEditScreen extends Screen {
 
         for (IHudWidget widget : hudManager.widgets()) {
             boolean isEnabled = hudManager.isWidgetEnabled(widget.identifier());
-            widget.renderDummy(context, widget == hoveredWidget, !isEnabled);
+            widget.renderDummy(context, !isEnabled);
+        }
+
+        if (draggingWidget != null) {
+            boolean isEnabled = hudManager.isWidgetEnabled(draggingWidget.identifier());
+            draggingWidget.renderDummyHighlighted(context, !isEnabled);
+        } else if (hoveredWidget != null) {
+            boolean isEnabled = hudManager.isWidgetEnabled(hoveredWidget.identifier());
+            hoveredWidget.renderDummyHighlighted(context, !isEnabled);
         }
 
         if (isControlPressed()) {
