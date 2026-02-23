@@ -6,7 +6,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import nl.devpieter.divine.rendering.hud.HudManager;
 import nl.devpieter.divine.rendering.hud.models.ScreenPosition;
-import nl.devpieter.utilize.utils.minecraft.TextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
@@ -72,10 +71,6 @@ public abstract class HudWidget implements IHudWidget {
 
     private void popMatrix(@NotNull DrawContext context) {
         context.getMatrices().popMatrix();
-    }
-
-    protected Text formatLine(String label, String value) {
-        return TextUtils.withStyle(label, labelStyle).append(TextUtils.withStyle(value, valueStyle));
     }
 
     protected void drawDynamicBox(DrawContext context, int x, int y, int color, List<Text> lines, TextRenderer textRenderer) {
