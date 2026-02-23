@@ -11,6 +11,8 @@
 - [Roadmap](#roadmap)
 
 <img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-tracker-hud.png?raw=true" width="368" height="190"></img>
+<img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-tracker-and-countdown-hud.png?raw=true" width="412" height="276"></img>
+<img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-location.png?raw=true" width="600" height="500"></img>
 
 ## Download
 
@@ -37,9 +39,12 @@ early stages of development and is by far not complete.
 
 ## Roadmap
 
-- [x] Basic Golem Detection
-- [X] Basic HUD Overlay
-- [ ] Loot Detection and Quality Calculation
+- [x] Golem Location and Stage Detection
+- [X] HUD Overlay with Editor
+- [x] Stage 4/5 Notifications
+- [x] Spawn countdown timer
+- [x] Loot Detection (Tier Boost Core/Legendary Golem Pet notifications)
+- [ ] Quality Calculation
 - [ ] Fight Statistics (e.g. DPS, Time, etc.)
 - [ ] Warp Hotkeys
 - [ ] And much more!
