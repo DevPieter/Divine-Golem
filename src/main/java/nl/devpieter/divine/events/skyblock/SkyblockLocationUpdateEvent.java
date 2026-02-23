@@ -1,7 +1,8 @@
-package nl.devpieter.divine.events;
+package nl.devpieter.divine.events.skyblock;
 
 import nl.devpieter.divine.models.HypixelLocation;
 import nl.devpieter.sees.event.SEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public record SkyblockLocationUpdateEvent(
@@ -10,6 +11,6 @@ public record SkyblockLocationUpdateEvent(
         boolean wasInTheEnd,
         boolean isInTheEnd,
         @Nullable HypixelLocation previousLocation,
-        @Nullable HypixelLocation location
+        @NotNull HypixelLocation location
 ) implements SEvent {
 }

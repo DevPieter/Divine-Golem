@@ -29,6 +29,9 @@ dependencies {
 
     implementation "nl.devpieter:sees:1.2.1"
     modImplementation "nl.devpieter:utilize:1.1.1+1.21.9-1.21.11"
+
+    implementation "net.harawata:appdirs:1.5.0"
+    include "net.harawata:appdirs:1.5.0"
 }
 
 preprocess {
