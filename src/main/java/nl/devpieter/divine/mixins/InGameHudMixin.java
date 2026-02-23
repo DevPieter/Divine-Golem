@@ -4,8 +4,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
 import nl.devpieter.divine.HypixelManager;
-import nl.devpieter.divine.config.HudManager;
-import nl.devpieter.divine.config.widget.IHudWidget;
+import nl.devpieter.divine.rendering.hud.HudManager;
+import nl.devpieter.divine.rendering.hud.widget.IHudWidget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,11 +28,11 @@ public abstract class InGameHudMixin {
             return;
         }
 
-//        if (!hypixelManager.isOnHypixel() || !hudManager.shouldRender()) return;
         if (!hudManager.shouldRender()) return;
 
         for (IHudWidget widget : hudManager.widgets()) {
-            if (widget.shouldRender()) widget.render(context);
+            if (!hudManager.isWidgetEnabled(widget.identifier()) || !widget.shouldRender()) continue;
+            widget.render(context);
         }
     }
 

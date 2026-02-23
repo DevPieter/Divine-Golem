@@ -1,4 +1,4 @@
-package nl.devpieter.divine.models;
+package nl.devpieter.divine.rendering.hud.models;
 
 public class ScreenPosition {
 
@@ -14,15 +14,17 @@ public class ScreenPosition {
         return x;
     }
 
-    public void setX(float x) {
+    public ScreenPosition setX(float x) {
         this.x = x;
+        return this;
     }
 
     public float y() {
         return y;
     }
 
-    public void setY(float y) {
+    public ScreenPosition setY(float y) {
         this.y = y;
+        return this;
     }
 }

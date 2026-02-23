@@ -1,11 +1,11 @@
-package nl.devpieter.divine.config.widgets;
+package nl.devpieter.divine.rendering.hud.widgets;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.HypixelManager;
-import nl.devpieter.divine.config.widget.HudWidget;
+import nl.devpieter.divine.rendering.hud.widget.HudWidget;
 import nl.devpieter.utilize.utils.minecraft.TextUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,9 +25,6 @@ public class TrackerHudWidget extends HudWidget {
             formatLine("Stage: ", "Stage Name"),
             formatLine("Location: ", "Location Name")
     );
-
-    private int dummyWidth;
-    private int dummyHeight;
 
     @Override
     public @NotNull String identifier() {
@@ -55,21 +52,11 @@ public class TrackerHudWidget extends HudWidget {
 
     @Override
     public int dummyWidth() {
-        if (dummyWidth == 0) {
-            dummyWidth = getLargestLineWidth(titleText, dummyLines, client.textRenderer) + 20;
-        }
-
-        return dummyWidth;
+        return calculateBoxWidth(titleText, dummyLines, client.textRenderer);
     }
 
     @Override
     public int dummyHeight() {
-        if (dummyHeight == 0) {
-            int lineHeight = client.textRenderer.fontHeight + 2;
-            int titleHeight = client.textRenderer.fontHeight + 8;
-            dummyHeight = titleHeight + (lineHeight * dummyLines.size()) + 20 - 4;
-        }
-
-        return dummyHeight;
+        return calculateBoxHeight(titleText, dummyLines, client.textRenderer);
     }
 }

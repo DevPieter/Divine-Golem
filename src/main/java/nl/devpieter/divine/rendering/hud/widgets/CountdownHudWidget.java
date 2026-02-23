@@ -1,11 +1,11 @@
-package nl.devpieter.divine.config.widgets;
+package nl.devpieter.divine.rendering.hud.widgets;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.HypixelManager;
-import nl.devpieter.divine.config.widget.HudWidget;
+import nl.devpieter.divine.rendering.hud.widget.HudWidget;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -22,9 +22,6 @@ public class CountdownHudWidget extends HudWidget {
             formatLine("Spawns In: ", getFormattedTime(16.1)),
             formatLine("TPS Adjusted: ", getFormattedTime(16.7))
     );
-
-    private int dummyWidth;
-    private int dummyHeight;
 
     @Override
     public @NotNull String identifier() {
@@ -52,20 +49,12 @@ public class CountdownHudWidget extends HudWidget {
 
     @Override
     public int dummyWidth() {
-        if (dummyWidth == 0) {
-            dummyWidth = getLargestLineWidth(dummyLines, client.textRenderer) + 20;
-        }
-
-        return dummyWidth;
+        return calculateBoxWidth(dummyLines, client.textRenderer);
     }
 
     @Override
     public int dummyHeight() {
-        if (dummyHeight == 0) {
-            dummyHeight = (client.textRenderer.fontHeight + 4) * dummyLines.size() + 10;
-        }
-
-        return dummyHeight;
+        return calculateBoxHeight(dummyLines, client.textRenderer);
     }
 
     private String getFormattedRealTime() {

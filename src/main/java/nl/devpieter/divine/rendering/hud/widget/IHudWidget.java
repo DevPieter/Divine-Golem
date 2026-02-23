@@ -1,4 +1,4 @@
-package nl.devpieter.divine.config.widget;
+package nl.devpieter.divine.rendering.hud.widget;
 
 import net.minecraft.client.gui.DrawContext;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +11,7 @@ public interface IHudWidget {
 
     void render(@NotNull DrawContext context);
 
-    void renderDummy(@NotNull DrawContext context);
+    void renderDummy(@NotNull DrawContext context, boolean highlighted, boolean disabled);
 
     int dummyWidth();
 
