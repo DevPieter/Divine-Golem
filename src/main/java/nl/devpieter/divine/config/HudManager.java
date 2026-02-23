@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import nl.devpieter.divine.config.screens.HudEditScreen;
 import nl.devpieter.divine.config.widget.IHudWidget;
 import nl.devpieter.divine.models.ScreenPosition;
+import nl.devpieter.divine.statics.Settings;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ public class HudManager {
 
     private final List<IHudWidget> widgets = new ArrayList<>();
     private final HashMap<String, ScreenPosition> defaultWidgetPositions = new HashMap<>();
-    private final HashMap<String, ScreenPosition> widgetPositions = new HashMap<>();
 
     private HudManager() {
     }
@@ -29,7 +29,11 @@ public class HudManager {
 
     public void registerWidget(IHudWidget widget, ScreenPosition position) {
         defaultWidgetPositions.put(widget.identifier(), position);
-        widgetPositions.put(widget.identifier(), position);
+
+        if (!Settings.HUD_WIDGET_POSITIONS.containsKey(widget.identifier())) {
+            Settings.HUD_WIDGET_POSITIONS.put(widget.identifier(), position);
+        }
+
         widgets.add(widget);
     }
 
@@ -38,25 +42,25 @@ public class HudManager {
     }
 
     public @Nullable ScreenPosition getWidgetPosition(String identifier) {
-        return widgetPositions.get(identifier);
+        return Settings.HUD_WIDGET_POSITIONS.get(identifier);
     }
 
     public void setWidgetPosition(String identifier, ScreenPosition position) {
-        if (!widgetPositions.containsKey(identifier)) return;
-        widgetPositions.put(identifier, position);
+        if (!Settings.HUD_WIDGET_POSITIONS.containsKey(identifier)) return;
+        Settings.HUD_WIDGET_POSITIONS.put(identifier, position);
     }
 
     public void resetWidgetPosition(String identifier) {
         if (!defaultWidgetPositions.containsKey(identifier)) return;
 
         ScreenPosition defaultPos = defaultWidgetPositions.get(identifier);
-        widgetPositions.put(identifier, new ScreenPosition(defaultPos.x(), defaultPos.y()));
+        Settings.HUD_WIDGET_POSITIONS.put(identifier, new ScreenPosition(defaultPos.x(), defaultPos.y()));
     }
 
     public @Nullable IHudWidget getWidgetByPosition(float x, float y) {
         for (IHudWidget widget : widgets) {
 
-            ScreenPosition pos = widgetPositions.get(widget.identifier());
+            ScreenPosition pos = Settings.HUD_WIDGET_POSITIONS.get(widget.identifier());
             if (pos == null) continue;
 
             if (x >= pos.x() && x <= pos.x() + widget.dummyWidth() && y >= pos.y() && y <= pos.y() + widget.dummyHeight()) {

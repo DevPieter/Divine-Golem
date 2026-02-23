@@ -11,6 +11,7 @@ import nl.devpieter.divine.config.widgets.CountdownHudWidget;
 import nl.devpieter.divine.config.widgets.TrackerHudWidget;
 import nl.devpieter.divine.listeners.*;
 import nl.devpieter.divine.models.ScreenPosition;
+import nl.devpieter.divine.statics.Settings;
 import nl.devpieter.sees.Sees;
 import nl.devpieter.utilize.managers.PacketManager;
 import nl.devpieter.utilize.utils.minecraft.ClientUtils;
@@ -29,6 +30,8 @@ public class Divine implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        Settings.load();
+
         Sees sees = Sees.getSharedInstance();
         sees.subscribe(HypixelManager.getInstance());
         sees.subscribe(GolemManager.getInstance());

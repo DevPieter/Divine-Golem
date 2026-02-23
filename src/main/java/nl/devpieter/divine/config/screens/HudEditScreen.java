@@ -10,6 +10,7 @@ import net.minecraft.text.Text;
 import nl.devpieter.divine.config.HudManager;
 import nl.devpieter.divine.config.widget.IHudWidget;
 import nl.devpieter.divine.models.ScreenPosition;
+import nl.devpieter.divine.statics.Settings;
 import nl.devpieter.utilize.utils.minecraft.TextUtils;
 import org.lwjgl.glfw.GLFW;
 
@@ -38,7 +39,7 @@ public class HudEditScreen extends Screen {
 
     private final int minGridSize = 5;
     private final int maxGridSize = 20;
-    private int gridSize = 10;
+//    private int gridSize = 10;
 
     private IHudWidget draggingWidget = null;
     private float dragOffsetX = 0;
@@ -58,14 +59,18 @@ public class HudEditScreen extends Screen {
         }
 
         if (isControlPressed()) {
-            MutableText gridSizeText = TextUtils.withStyle("Grid Size: ", instructionsStyle).append(TextUtils.withStyle(String.valueOf(gridSize), highlightStyle));
+            int gridSize = Settings.EDIT_HUD_GRID_SIZE.getValue();
+
+            MutableText gridSizeText = TextUtils.withStyle("Grid Size: ", instructionsStyle)
+                    .append(TextUtils.withStyle(String.valueOf(gridSize), highlightStyle));
+
             context.drawCenteredTextWithShadow(client.textRenderer, gridSizeText, mouseX, mouseY - 10, 0xFFFFFFFF);
         }
 
-        int yOffset = this.height - 20 - (instructionsText.size() - 1) * (textRenderer.fontHeight + 4);
+        int yOffset = height - 20 - (instructionsText.size() - 1) * (textRenderer.fontHeight + 4);
 
         for (MutableText line : instructionsText) {
-            context.drawCenteredTextWithShadow(client.textRenderer, line, this.width / 2, yOffset, 0xFFFFFFFF);
+            context.drawCenteredTextWithShadow(client.textRenderer, line, width / 2, yOffset, 0xFFFFFFFF);
             yOffset += textRenderer.fontHeight + 4;
         }
     }
@@ -77,6 +82,7 @@ public class HudEditScreen extends Screen {
         float newX = (float) (mouseX - dragOffsetX);
         float newY = (float) (mouseY - dragOffsetY);
 
+        int gridSize = Settings.EDIT_HUD_GRID_SIZE.getValue();
         newX = Math.round(newX / gridSize) * gridSize;
         newY = Math.round(newY / gridSize) * gridSize;
 
@@ -121,15 +127,13 @@ public class HudEditScreen extends Screen {
         int key = input.key();
         boolean controlPressed = isControlPressed();
 
-        // Ctrl + Plus to increase grid size
-        if (controlPressed && (key == GLFW.GLFW_KEY_KP_ADD || key == GLFW.GLFW_KEY_EQUAL)) {
-            gridSize = Math.min(maxGridSize, gridSize + 1);
-            return true;
-        }
+        int gridSize = Settings.EDIT_HUD_GRID_SIZE.getValue();
 
-        // Ctrl + Minus to decrease grid size
-        if (controlPressed && (key == GLFW.GLFW_KEY_KP_SUBTRACT || key == GLFW.GLFW_KEY_MINUS)) {
-            gridSize = Math.max(minGridSize, gridSize - 1);
+        if (controlPressed && (key == GLFW.GLFW_KEY_KP_ADD || key == GLFW.GLFW_KEY_EQUAL)) {
+            Settings.EDIT_HUD_GRID_SIZE.setValue(Math.min(maxGridSize, gridSize + 1));
+            return true;
+        } else if (controlPressed && (key == GLFW.GLFW_KEY_KP_SUBTRACT || key == GLFW.GLFW_KEY_MINUS)) {
+            Settings.EDIT_HUD_GRID_SIZE.setValue(Math.max(minGridSize, gridSize - 1));
             return true;
         }
 
@@ -140,21 +144,31 @@ public class HudEditScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if (!isControlPressed()) return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 
+        int gridSize = Settings.EDIT_HUD_GRID_SIZE.getValue();
+
         if (verticalAmount > 0) {
-            gridSize = Math.min(maxGridSize, gridSize + 1);
+            Settings.EDIT_HUD_GRID_SIZE.setValue(Math.min(maxGridSize, gridSize + 1));
             return true;
         } else if (verticalAmount < 0) {
-            gridSize = Math.max(minGridSize, gridSize - 1);
+            Settings.EDIT_HUD_GRID_SIZE.setValue(Math.max(minGridSize, gridSize - 1));
             return true;
         }
 
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
-    private void renderGrid(DrawContext context) {
-        int width = this.width;
-        int height = this.height;
+    @Override
+    public void close() {
+        super.close();
 
+        Settings.save(Settings.EDIT_HUD_GRID_SIZE);
+        Settings.save(Settings.HUD_WIDGET_POSITIONS);
+    }
+
+    private void renderGrid(DrawContext context) {
+        int gridSize = Settings.EDIT_HUD_GRID_SIZE.getValue();
+
+        // Draw main grid
         for (int x = 0; x < width; x += gridSize) context.fill(x, 0, x + 1, height, 0x10FFFFFF);
         for (int y = 0; y < height; y += gridSize) context.fill(0, y, width, y + 1, 0x10FFFFFF);
     }
