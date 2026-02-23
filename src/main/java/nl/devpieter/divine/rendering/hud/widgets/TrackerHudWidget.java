@@ -6,7 +6,7 @@ import net.minecraft.text.Text;
 import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.HypixelManager;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
-import nl.devpieter.utilize.utils.minecraft.TextUtils;
+import nl.devpieter.divine.utils.FormatUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -18,13 +18,6 @@ public class TrackerHudWidget extends HudWidget {
 
     private final GolemManager golemManager = GolemManager.getInstance();
     private final HypixelManager hypixelManager = HypixelManager.getInstance();
-
-    private final Text titleText = TextUtils.withStyle("Divine Golem Tracker", titleStyle);
-
-    private final List<Text> dummyLines = List.of(
-            formatLine("Stage: ", "Stage Name"),
-            formatLine("Location: ", "Location Name")
-    );
 
     @Override
     public @NotNull String identifier() {
@@ -39,24 +32,36 @@ public class TrackerHudWidget extends HudWidget {
     @Override
     protected void renderWidget(DrawContext context) {
         List<Text> lines = new ArrayList<>();
-        lines.add(formatLine("Stage: ", golemManager.getFormattedStageText()));
-        lines.add(formatLine("Location: ", golemManager.getFormattedLocationText()));
 
-        drawDynamicBox(context, 0, 0, backgroundColor, titleText, lines, client.textRenderer);
+        lines.add(FormatUtils.formatTranslatable("text.divine.widget.tracker.stage", labelStyle, valueStyle, golemManager.getFormattedStageText()));
+        lines.add(FormatUtils.formatTranslatable("text.divine.widget.tracker.location", labelStyle, valueStyle, golemManager.getFormattedLocationText()));
+
+        drawDynamicBox(context, 0, 0, backgroundColor, getTitle(), lines, client.textRenderer);
     }
 
     @Override
     protected void renderDummyWidget(DrawContext context) {
-        drawDynamicBox(context, 0, 0, backgroundColor, titleText, dummyLines, client.textRenderer);
+        drawDynamicBox(context, 0, 0, backgroundColor, getTitle(), getDummyLines(), client.textRenderer);
     }
 
     @Override
     public int dummyWidth() {
-        return calculateBoxWidth(titleText, dummyLines, client.textRenderer);
+        return calculateBoxWidth(getTitle(), getDummyLines(), client.textRenderer);
     }
 
     @Override
     public int dummyHeight() {
-        return calculateBoxHeight(titleText, dummyLines, client.textRenderer);
+        return calculateBoxHeight(getTitle(), getDummyLines(), client.textRenderer);
+    }
+
+    private Text getTitle() {
+        return FormatUtils.formatTranslatable("text.divine.widget.tracker.title", titleStyle, valueStyle);
+    }
+
+    private List<Text> getDummyLines() {
+        return List.of(
+                FormatUtils.formatTranslatable("text.divine.widget.tracker.stage", labelStyle, valueStyle, "Stage Name"),
+                FormatUtils.formatTranslatable("text.divine.widget.tracker.location", labelStyle, valueStyle, "Location Name")
+        );
     }
 }
