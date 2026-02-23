@@ -91,9 +91,7 @@ public class GolemManager implements SListener {
     }
 
     public String getFormattedLocationText() {
-        if (currentStage == GolemStage.RESTING) return "N/A";
         if (scanningForLocation) return String.format("Scanning%s", ".".repeat(locationScanCounter % 4));
-
         if (currentLocation == GolemLocation.UNDEFINED) return "N/A";
         return currentLocation.locationName();
     }
@@ -128,14 +126,8 @@ public class GolemManager implements SListener {
 
         fightLocation = GolemLocation.UNDEFINED;
 
-        if (currentStage != GolemStage.UNDEFINED) {
-            sees.dispatch(new ProtectorStageUpdateEvent(currentStage, GolemStage.UNDEFINED));
-            currentStage = GolemStage.UNDEFINED;
-        }
-        if (currentLocation != GolemLocation.UNDEFINED) {
-            sees.dispatch(new ProtectorLocationUpdateEvent(currentLocation, GolemLocation.UNDEFINED));
-            currentLocation = GolemLocation.UNDEFINED;
-        }
+        if (currentStage != GolemStage.UNDEFINED) setStageWithEvent(GolemStage.UNDEFINED);
+        if (currentLocation != GolemLocation.UNDEFINED) setLocationWithEvent(GolemLocation.UNDEFINED);
     }
 
     @SEventListener
@@ -181,36 +173,6 @@ public class GolemManager implements SListener {
         }
     }
 
-    private void matchFightBreakdownMessage(String message) {
-        String finalBlowPlayer = RegexUtils.findFirstGroup(FINAL_BLOW_PATTERN, message);
-        if (finalBlowPlayer != null) currentFightBreakdown.setFinalBlow(new FinalBlowDetails(finalBlowPlayer));
-
-        Matcher damageEntryMatcher = DAMAGE_ENTRY_PATTERN.matcher(message);
-        if (damageEntryMatcher.matches()) {
-            int position = Integer.parseInt(damageEntryMatcher.group(1));
-            String playerName = damageEntryMatcher.group(2);
-            int damage = Integer.parseInt(damageEntryMatcher.group(3).replace(",", ""));
-
-            currentFightBreakdown.addDamageEntry(new FightDamageEntry(playerName, position, damage));
-        }
-
-        var myDamageMatcher = MY_DAMAGE_PATTERN.matcher(message);
-        if (myDamageMatcher.matches()) {
-            int damage = Integer.parseInt(myDamageMatcher.group(1).replaceAll(",", ""));
-            int position = Integer.parseInt(myDamageMatcher.group(2));
-
-            currentFightBreakdown.setMyDamage(new MyDamageDetails(damage, position));
-        }
-
-        Integer zealotContribution = RegexUtils.findFirstGroupAsInt(ZEALOT_CONTRIBUTION_PATTERN, message);
-        if (zealotContribution != null)
-            currentFightBreakdown.setMyZealotContribution(new MyZealotContributionDetails(zealotContribution));
-
-        if (!currentFightBreakdown.isComplete()) return;
-        matchingForFightBreakdown = false;
-        sees.dispatch(new ProtectorFightBreakdownReadyEvent(currentFightBreakdown));
-    }
-
     @SEventListener
     private void onPlayerListUpdate(PlayerListUpdateEvent event) {
         if (!hypixelManager.isInTheEnd()) return;
@@ -221,18 +183,15 @@ public class GolemManager implements SListener {
                 .toList();
 
         GolemStage detectedStage = GolemUtils.getCurrentStage(displayNames);
-        if (detectedStage == null || detectedStage == currentStage) return;
-
-        GolemStage previousStage = currentStage;
-        currentStage = detectedStage;
-
-        sees.dispatch(new ProtectorStageUpdateEvent(previousStage, currentStage));
+        if (detectedStage != null) setStageWithEvent(detectedStage);
     }
 
     @SEventListener
     private void onProtectorStageUpdate(ProtectorStageUpdateEvent event) {
-        if (event.stage() == GolemStage.UNDEFINED || event.stage() == GolemStage.RESTING) stopLocationScan();
-        else startLocationScan();
+        if (event.stage() == GolemStage.UNDEFINED || event.stage() == GolemStage.RESTING) {
+            stopLocationScan();
+            setLocationWithEvent(GolemLocation.UNDEFINED);
+        } else startLocationScan();
     }
 
     private void startLocationScan() {
@@ -289,18 +248,13 @@ public class GolemManager implements SListener {
 
             taskManager.addTask(new RunLaterTask(() -> {
                 if (scanningForLocation) performLocationScan();
-            }, 20 * 2), TaskManager.TickPhase.PLAYER_TAIL);
+            }, 20), TaskManager.TickPhase.PLAYER_TAIL);
 
             return;
         }
 
         scanningForLocation = false;
-        if (detectedLocation == currentLocation) return;
-
-        GolemLocation previousLocation = currentLocation;
-        currentLocation = detectedLocation;
-
-        sees.dispatch(new ProtectorLocationUpdateEvent(previousLocation, currentLocation));
+        setLocationWithEvent(detectedLocation);
     }
 
     private void performDropScan() {
@@ -335,5 +289,54 @@ public class GolemManager implements SListener {
         currentDrops = detectedDrops;
 
         sees.dispatch(new ProtectorDropsFoundEvent(currentDrops));
+    }
+
+    private void matchFightBreakdownMessage(String message) {
+        String finalBlowPlayer = RegexUtils.findFirstGroup(FINAL_BLOW_PATTERN, message);
+        if (finalBlowPlayer != null) currentFightBreakdown.setFinalBlow(new FinalBlowDetails(finalBlowPlayer));
+
+        Matcher damageEntryMatcher = DAMAGE_ENTRY_PATTERN.matcher(message);
+        if (damageEntryMatcher.matches()) {
+            int position = Integer.parseInt(damageEntryMatcher.group(1));
+            String playerName = damageEntryMatcher.group(2);
+            int damage = Integer.parseInt(damageEntryMatcher.group(3).replace(",", ""));
+
+            currentFightBreakdown.addDamageEntry(new FightDamageEntry(playerName, position, damage));
+        }
+
+        var myDamageMatcher = MY_DAMAGE_PATTERN.matcher(message);
+        if (myDamageMatcher.matches()) {
+            int damage = Integer.parseInt(myDamageMatcher.group(1).replaceAll(",", ""));
+            int position = Integer.parseInt(myDamageMatcher.group(2));
+
+            currentFightBreakdown.setMyDamage(new MyDamageDetails(damage, position));
+        }
+
+        Integer zealotContribution = RegexUtils.findFirstGroupAsInt(ZEALOT_CONTRIBUTION_PATTERN, message);
+        if (zealotContribution != null)
+            currentFightBreakdown.setMyZealotContribution(new MyZealotContributionDetails(zealotContribution));
+
+        if (!currentFightBreakdown.isComplete()) return;
+        matchingForFightBreakdown = false;
+
+        sees.dispatch(new ProtectorFightBreakdownReadyEvent(currentFightBreakdown));
+    }
+
+    private void setStageWithEvent(GolemStage newStage) {
+        if (newStage == currentStage) return;
+
+        GolemStage previousStage = currentStage;
+        currentStage = newStage;
+
+        sees.dispatch(new ProtectorStageUpdateEvent(previousStage, currentStage));
+    }
+
+    private void setLocationWithEvent(GolemLocation newLocation) {
+        if (newLocation == currentLocation) return;
+
+        GolemLocation previousLocation = currentLocation;
+        currentLocation = newLocation;
+
+        sees.dispatch(new ProtectorLocationUpdateEvent(previousLocation, currentLocation));
     }
 }

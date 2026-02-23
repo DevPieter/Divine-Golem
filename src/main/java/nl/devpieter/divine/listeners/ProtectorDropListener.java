@@ -16,8 +16,6 @@ public class ProtectorDropListener implements SListener {
     @SEventListener
     private void onProtectorDropsFound(ProtectorDropsFoundEvent event) {
 
-        System.out.println("Protector drops found: " + event.drops());
-
 //        if (event.drops().stream().anyMatch(drop -> drop.type() == GolemDropType.CRYSTAL_FRAGMENT)) {
 //            notifyTest();
 //        }
@@ -33,17 +31,17 @@ public class ProtectorDropListener implements SListener {
 
     private void notifyTest() {
         Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
-        setTitle(TextUtils.withStyle(Text.of("Crystal Fragment Found"), titleStyle));
+        setTitle(TextUtils.withStyle(Text.of("Crystal Fragment"), titleStyle));
     }
 
     private void notifyTierBoostCoreFound() {
         Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
-        setTitle(TextUtils.withStyle(Text.of("Tier Boost Core Found"), titleStyle));
+        setTitle(TextUtils.withStyle(Text.of("Tier Boost Core"), titleStyle));
     }
 
     private void notifyLegendaryGolemPetFound() {
         Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
-        setTitle(TextUtils.withStyle(Text.of("Legendary Golem Pet Found"), titleStyle));
+        setTitle(TextUtils.withStyle(Text.of("Legendary Golem Pet"), titleStyle));
     }
 
     private void setTitle(Text title) {
