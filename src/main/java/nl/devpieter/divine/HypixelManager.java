@@ -10,7 +10,6 @@ import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
 import nl.devpieter.utilize.task.TaskManager;
 import nl.devpieter.utilize.task.tasks.RunLaterTask;
-import nl.devpieter.utilize.utils.common.RandomUtils;
 import nl.devpieter.utilize.utils.minecraft.NetworkUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -113,15 +112,15 @@ public class HypixelManager implements SListener {
         NetworkUtils.sendChatCommand("locraw");
         locRawRequestCounter++;
 
-        if (locRawRequestCounter > 5) {
+        if (locRawRequestCounter > 10) {
             requestingLocRaw = false;
             return;
         }
 
-        int jitter = RandomUtils.randomIntInclusive(3, 7);
+        int delay = 10 * locRawRequestCounter;
 
         TaskManager.getInstance().addTask(new RunLaterTask(() -> {
             if (requestingLocRaw) requestLocRaw();
-        }, 20 * jitter), TaskManager.TickPhase.PLAYER_TAIL);
+        }, delay), TaskManager.TickPhase.PLAYER_TAIL);
     }
 }

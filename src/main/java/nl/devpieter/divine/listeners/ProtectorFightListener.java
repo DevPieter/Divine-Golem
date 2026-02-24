@@ -17,7 +17,6 @@ import nl.devpieter.divine.models.fightBreakdown.ProtectorFightBreakdown;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.utils.minecraft.ClientUtils;
-import nl.devpieter.utilize.utils.minecraft.PlayerUtils;
 import nl.devpieter.utilize.utils.minecraft.SoundUtils;
 import nl.devpieter.utilize.utils.minecraft.TextUtils;
 
@@ -88,9 +87,9 @@ public class ProtectorFightListener implements SListener {
         sb.append(String.format("- Final Quality: %d%n", finalQuality));
 
         System.out.println(sb);
-        MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
 
-        PlayerUtils.sendMessage(Text.of("Damage breakdown copied to clipboard!"), true);
+//        MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
+//        PlayerUtils.sendMessage(Text.of("Damage breakdown copied to clipboard!"), true);
     }
 
     @SEventListener
