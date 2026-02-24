@@ -13,6 +13,7 @@ import nl.devpieter.divine.rendering.hud.HudManager;
 import nl.devpieter.divine.rendering.hud.models.ScreenPosition;
 import nl.devpieter.divine.rendering.hud.widget.IHudWidget;
 import nl.devpieter.divine.utils.FormatUtils;
+import nl.devpieter.utilize.setting.settings.BooleanSetting;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -25,11 +26,14 @@ public class HudEditScreen extends Screen {
     private final Style instructionsStyle = Style.EMPTY.withColor(0x8f8f8f).withItalic(true);
     private final Style highlightStyle = Style.EMPTY.withColor(0xff3be477).withBold(true);
 
-    private final List<MutableText> instructionsText = List.of(
+    private final Text hintText = FormatUtils.formatTranslatable("text.divine.hud_editor.hint_show_instructions", instructionsStyle, highlightStyle);
+
+    private final List<Text> instructionsText = List.of(
             FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.reposition", instructionsStyle, highlightStyle),
             FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.toggle", instructionsStyle, highlightStyle),
             FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.reset", instructionsStyle, highlightStyle),
-            FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.grid_size", instructionsStyle, highlightStyle)
+            FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.grid_size", instructionsStyle, highlightStyle),
+            FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.disable_grid", instructionsStyle, highlightStyle)
     );
 
     private final ClampedIntSetting gridSize = new ClampedIntSetting(
@@ -39,6 +43,11 @@ public class HudEditScreen extends Screen {
             30
     );
 
+    private final BooleanSetting snapToGrid = new BooleanSetting(
+            "edit_hud_snap_to_grid",
+            true
+    );
+
     private IHudWidget draggingWidget = null;
     private float dragOffsetX = 0;
     private float dragOffsetY = 0;
@@ -46,29 +55,42 @@ public class HudEditScreen extends Screen {
     public HudEditScreen() {
         super(Text.translatable("text.divine.hud_editor.title"));
         settings.load(gridSize);
+        settings.load(snapToGrid);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-        renderGrid(context);
+        if (snapToGrid.getValue()) renderGrid(context);
 
         IHudWidget hoveredWidget = hudManager.getWidgetByPosition(mouseX, mouseY);
 
         for (IHudWidget widget : hudManager.widgets()) {
             boolean isEnabled = hudManager.isWidgetEnabled(widget.identifier());
-            widget.renderDummy(context, widget == hoveredWidget, !isEnabled);
+            widget.renderDummy(context, !isEnabled);
         }
 
-        if (isControlPressed()) {
+        if (draggingWidget != null) {
+            boolean isEnabled = hudManager.isWidgetEnabled(draggingWidget.identifier());
+            draggingWidget.renderDummyHighlighted(context, !isEnabled);
+        } else if (hoveredWidget != null) {
+            boolean isEnabled = hudManager.isWidgetEnabled(hoveredWidget.identifier());
+            hoveredWidget.renderDummyHighlighted(context, !isEnabled);
+        }
+
+        if (isControlPressed() && snapToGrid.getValue()) {
             MutableText gridSizeText = FormatUtils.formatTranslatable("text.divine.hud_editor.current_grid_size", instructionsStyle, highlightStyle, String.valueOf(gridSize.getValue()));
             context.drawCenteredTextWithShadow(client.textRenderer, gridSizeText, width / 2, height / 2 - textRenderer.fontHeight / 2, 0xFFFFFFFF);
         }
 
-        int yOffset = height - 20 - (instructionsText.size() - 1) * (textRenderer.fontHeight + 4);
+        if (isSpacePressed()) {
+            int yOffset = height - 20 - (instructionsText.size() - 1) * (textRenderer.fontHeight + 5);
 
-        for (MutableText line : instructionsText) {
-            context.drawCenteredTextWithShadow(client.textRenderer, line, width / 2, yOffset, 0xFFFFFFFF);
-            yOffset += textRenderer.fontHeight + 4;
+            for (Text line : instructionsText) {
+                context.drawCenteredTextWithShadow(client.textRenderer, line, width / 2, yOffset, 0xFFFFFFFF);
+                yOffset += textRenderer.fontHeight + 5;
+            }
+        } else {
+            context.drawCenteredTextWithShadow(client.textRenderer, hintText, width / 2, height - 20, 0xFFFFFFFF);
         }
     }
 
@@ -79,9 +101,11 @@ public class HudEditScreen extends Screen {
         float newX = (float) (mouseX - dragOffsetX);
         float newY = (float) (mouseY - dragOffsetY);
 
-        int size = gridSize.getValue();
-        newX = Math.round(newX / size) * size;
-        newY = Math.round(newY / size) * size;
+        if (snapToGrid.getValue()) {
+            int size = gridSize.getValue();
+            newX = Math.round(newX / size) * size;
+            newY = Math.round(newY / size) * size;
+        }
 
         newX = Math.max(0, Math.min(newX, width - draggingWidget.dummyWidth()));
         newY = Math.max(0, Math.min(newY, height - draggingWidget.dummyHeight()));
@@ -122,12 +146,18 @@ public class HudEditScreen extends Screen {
     @Override
     public boolean keyReleased(KeyInput input) {
         int key = input.key();
-        boolean controlPressed = isControlPressed();
 
-        if (controlPressed && (key == GLFW.GLFW_KEY_KP_ADD || key == GLFW.GLFW_KEY_EQUAL)) {
+        if (key == GLFW.GLFW_KEY_S) {
+            snapToGrid.toggle();
+            return true;
+        }
+
+        if (!isControlPressed() || !snapToGrid.getValue()) return super.keyReleased(input);
+
+        if (key == GLFW.GLFW_KEY_KP_ADD || key == GLFW.GLFW_KEY_EQUAL) {
             gridSize.increment();
             return true;
-        } else if (controlPressed && (key == GLFW.GLFW_KEY_KP_SUBTRACT || key == GLFW.GLFW_KEY_MINUS)) {
+        } else if (key == GLFW.GLFW_KEY_KP_SUBTRACT || key == GLFW.GLFW_KEY_MINUS) {
             gridSize.decrement();
             return true;
         }
@@ -137,7 +167,8 @@ public class HudEditScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        if (!isControlPressed()) return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+        if (!isControlPressed() || !snapToGrid.getValue())
+            return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 
         if (verticalAmount != 0) {
             if (verticalAmount > 0) gridSize.increment();
@@ -153,6 +184,7 @@ public class HudEditScreen extends Screen {
         super.close();
 
         settings.save(gridSize);
+        settings.save(snapToGrid);
         hudManager.save();
     }
 
@@ -168,13 +200,18 @@ public class HudEditScreen extends Screen {
         for (int y = 0; y < height; y += size) context.fill(0, y, width, y + 1, 0x30DCDCDC);
     }
 
+    private boolean isShiftPressed() {
+        long handle = client.getWindow().getHandle();
+        return GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS;
+    }
+
     private boolean isControlPressed() {
         long handle = client.getWindow().getHandle();
         return GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
     }
 
-    private boolean isShiftPressed() {
+    private boolean isSpacePressed() {
         long handle = client.getWindow().getHandle();
-        return GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS;
+        return GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_SPACE) == GLFW.GLFW_PRESS;
     }
 }

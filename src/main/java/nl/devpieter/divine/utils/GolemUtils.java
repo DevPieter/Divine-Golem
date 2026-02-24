@@ -47,7 +47,7 @@ public class GolemUtils {
 
             for (BlockPos headPos : headPositions) {
                 Block block = WorldUtils.getBlockAt(headPos);
-                if (block == null || block != Blocks.PLAYER_HEAD) continue;
+                if (block == null || (block != Blocks.PLAYER_HEAD && block != Blocks.PLAYER_WALL_HEAD)) continue;
 
                 return location;
             }
