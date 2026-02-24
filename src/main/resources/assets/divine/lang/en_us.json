@@ -1,0 +1,18 @@
+{
+  "key.category.divine.main": "Divine Golem",
+  "key.divine.open_hud_editor": "Open HUD Editor",
+
+  "text.divine.hud_editor.title": "Divine HUD Editor",
+  "text.divine.hud_editor.current_grid_size": "Current Grid Size: <highlight>%s</highlight>",
+  "text.divine.hud_editor.instruction.reposition": "<highlight>Hold</highlight> and <highlight>Drag</highlight> widgets to reposition.",
+  "text.divine.hud_editor.instruction.toggle": "<highlight>Right Click</highlight> widgets to toggle them on/off.",
+  "text.divine.hud_editor.instruction.reset": "<highlight>Shift + Right Click</highlight> widgets to reset their position.",
+  "text.divine.hud_editor.instruction.grid_size": "Hold <highlight>Ctrl</highlight> and <highlight>Scroll</highlight> to adjust grid size.",
+
+  "text.divine.widget.countdown.spawns_in": "Spawns In: <highlight>%s</highlight>",
+  "text.divine.widget.countdown.tps_adjusted": "TPS Adjusted: <highlight>%s</highlight>",
+
+  "text.divine.widget.tracker.title": "Divine Golem // Tracker",
+  "text.divine.widget.tracker.stage": "Stage: <highlight>%s</highlight>",
+  "text.divine.widget.tracker.location": "Location: <highlight>%s</highlight>"
+}

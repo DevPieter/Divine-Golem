@@ -18,10 +18,10 @@ import org.lwjgl.glfw.GLFW;
 
 public class Divine implements ClientModInitializer {
 
-    private final KeyBinding.Category category = new KeyBinding.Category(Identifier.of("divine", "key_category"));
+    private final KeyBinding.Category category = new KeyBinding.Category(Identifier.of("divine", "main"));
 
     private final KeyBinding editHudKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.divine.edit_hud",
+            "key.divine.open_hud_editor",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_H,
             category
@@ -45,15 +45,7 @@ public class Divine implements ClientModInitializer {
         hudManager.registerWidget(new TrackerHudWidget(), new WidgetOptions(20, 20));
         hudManager.registerWidget(new CountdownHudWidget(), new WidgetOptions(20, 80));
 
-        KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.divine.debug",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_N,
-                KeyBinding.Category.MISC
-        ));
-
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (keyBinding.wasPressed()) hudManager.openEditScreen();
             if (editHudKeyBinding.wasPressed()) hudManager.openEditScreen();
         });
     }
