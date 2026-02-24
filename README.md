@@ -1,3 +1,6 @@
+> [!WARNING]
+> The most recent update of Hypixel Skyblock screwed up some in-game messages which Divine Golem relies on to work correctly, please be patient while I and Hypixel work on fixing these issues.
+
 [![Divine Golem Logo](https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/divine-golem-icon.svg)](https://modrinth.com/mod/divine-golem)
 
 # Divine Golem
