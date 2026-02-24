@@ -13,7 +13,8 @@ public class DebugListener implements SListener {
 
     @SEventListener
     private void onProtectorAboutToSpawn(ProtectorAboutToSpawnEvent event) {
-        logger.info("Protector is about to spawn! Predicted spawn time: {} ms", event.predictedSpawnTimeMillis());
+//        logger.info("Protector is about to spawn! Predicted spawn time: {} ms", event.predictedSpawnTimeMillis());
+        logger.info("Protector is about to spawn! Predicted spawn time");
     }
 
     @SEventListener

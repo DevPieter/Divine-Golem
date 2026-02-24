@@ -20,6 +20,11 @@ public class TrackerHudWidget extends HudWidget {
     private final HypixelManager hypixelManager = HypixelManager.getInstance();
 
     @Override
+    public @NotNull String name() {
+        return "Tracker";
+    }
+
+    @Override
     public @NotNull String identifier() {
         return "tracker";
     }
