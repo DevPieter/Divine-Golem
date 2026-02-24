@@ -199,7 +199,8 @@ public class GolemManager implements SListener {
 
     @SEventListener
     private void onPlayerListUpdate(PlayerListUpdateEvent event) {
-        if (!hypixelManager.isInTheEnd()) return;
+        // TODO - Sometimes we receive a player list update before the locraw, this causes us to not detect the stage.
+        // if (!hypixelManager.isInTheEnd()) return;
 
         List<Text> displayNames = event.entries().stream()
                 .map(PlayerListS2CPacket.Entry::displayName)
