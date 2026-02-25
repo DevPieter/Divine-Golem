@@ -1,6 +1,3 @@
-> [!WARNING]
-> The most recent update of Hypixel Skyblock screwed up some in-game messages which Divine Golem relies on to work correctly, please be patient while I and Hypixel work on fixing these issues.
-
 [![Divine Golem Logo](https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/divine-golem-icon.svg)](https://modrinth.com/mod/divine-golem)
 
 # Divine Golem
@@ -14,7 +11,9 @@
 - [Roadmap](#roadmap)
 
 <img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-tracker-hud.png?raw=true" width="368" height="190"></img>
+<br>
 <img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-tracker-and-countdown-hud.png?raw=true" width="412" height="276"></img>
+<br>
 <img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-location.png?raw=true" width="600" height="500"></img>
 
 ## Download
@@ -32,8 +31,13 @@ You can download Divine Golem on Modrinth: [Download Divine Golem](https://modri
 
 ## Features
 
-- **Stage 5 Notifications**: Get notified when the End Stone Protector reaches stage 5.
+- **Stage 5 Notifications**: Get notified when the End Stone Protector reaches stage 4 and stage 5.
 - **Location and Stage Display**: Always know where the End Stone Protector is and which stage it is at.
+- **Spawn Countdown Timer**: A helpful countdown timer that shows when the End Stone Protector will spawn, also TPS adjusted.
+- **Loot Detection**: Get notified about rare loot drops from the End Stone Protector, such as the Tier Boost Core and the Legendary Golem Pet.
+- **Loot Quality Calculation**: Shows the quality of loot you could get from the End Stone Protector.
+- **DPS Calculation**: Shows your current DPS on the End Stone Protector.
+- **HUD Overlay with Editor**: A customizable HUD that displays all the important information you might need.
 
 ## Description
 
@@ -47,7 +51,7 @@ early stages of development and is by far not complete.
 - [x] Stage 4/5 Notifications
 - [x] Spawn countdown timer
 - [x] Loot Detection (Tier Boost Core/Legendary Golem Pet notifications)
-- [ ] Quality Calculation
-- [ ] Fight Statistics (e.g. DPS, Time, etc.)
+- [x] Loot Quality Calculation
+- [x] DPS Calculation
 - [ ] Warp Hotkeys
 - [ ] And much more!

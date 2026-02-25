@@ -107,20 +107,20 @@ public class HypixelManager implements SListener {
     }
 
     private void requestLocRaw() {
-        if (!requestingLocRaw) return;
+        if (!requestingLocRaw || hasReceivedLocRaw) return;
 
         NetworkUtils.sendChatCommand("locraw");
         locRawRequestCounter++;
 
         if (locRawRequestCounter > 10) {
-            requestingLocRaw = false;
+            stopRequestingLocRaw();
             return;
         }
 
         int delay = 10 * locRawRequestCounter;
 
         TaskManager.getInstance().addTask(new RunLaterTask(() -> {
-            if (requestingLocRaw) requestLocRaw();
+            if (requestingLocRaw && !hasReceivedLocRaw) requestLocRaw();
         }, delay), TaskManager.TickPhase.PLAYER_TAIL);
     }
 }

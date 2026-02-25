@@ -10,6 +10,8 @@ import nl.devpieter.divine.listeners.*;
 import nl.devpieter.divine.rendering.hud.HudManager;
 import nl.devpieter.divine.rendering.hud.models.WidgetOptions;
 import nl.devpieter.divine.rendering.hud.widgets.CountdownHudWidget;
+import nl.devpieter.divine.rendering.hud.widgets.DamagePerSecondHudWidget;
+import nl.devpieter.divine.rendering.hud.widgets.LootQualityHudWidget;
 import nl.devpieter.divine.rendering.hud.widgets.TrackerHudWidget;
 import nl.devpieter.sees.Sees;
 import nl.devpieter.utilize.managers.PacketManager;
@@ -44,6 +46,8 @@ public class Divine implements ClientModInitializer {
         HudManager hudManager = HudManager.getInstance();
         hudManager.registerWidget(new TrackerHudWidget(), new WidgetOptions(20, 20));
         hudManager.registerWidget(new CountdownHudWidget(), new WidgetOptions(20, 80));
+        hudManager.registerWidget(new LootQualityHudWidget(), new WidgetOptions(230, 20));
+        hudManager.registerWidget(new DamagePerSecondHudWidget(), new WidgetOptions(230, 50));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (editHudKeyBinding.wasPressed()) hudManager.openEditScreen();
