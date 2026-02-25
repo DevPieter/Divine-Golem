@@ -44,7 +44,7 @@ public class GolemManager implements SListener {
 
     private final Pattern FINAL_BLOW_PATTERN = Pattern.compile("^(?:\\[[^\\]]+\\]\\s*)?(.+?)\\s+dealt the final blow\\.$", Pattern.CASE_INSENSITIVE);
     private final Pattern DAMAGE_ENTRY_PATTERN = Pattern.compile("^(\\d+)(?:st|nd|rd|th)\\s+Damager\\s+-\\s+(?:\\[[^\\]]+\\]\\s*)?([^-]+?)\\s+-\\s+([\\d,]+)$", Pattern.CASE_INSENSITIVE);
-    private final Pattern MY_DAMAGE_PATTERN = Pattern.compile("^Your Damage: ([\\d,]+) \\(Position #(\\d+)\\)$", Pattern.CASE_INSENSITIVE);
+    private final Pattern MY_DAMAGE_PATTERN = Pattern.compile("^Your Damage: ([\\d,]+) \\((?:NEW RECORD!\\) \\()?Position #(\\d+)\\)?$", Pattern.CASE_INSENSITIVE);
     private final Pattern ZEALOT_CONTRIBUTION_PATTERN = Pattern.compile("^Zealots Contributed: (\\d+)/100$", Pattern.CASE_INSENSITIVE);
 
     private final HypixelManager hypixelManager = HypixelManager.getInstance();
