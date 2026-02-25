@@ -16,7 +16,7 @@
   "text.divine.widget.countdown.difference": "Difference: <highlight>%s</highlight>",
 
   "text.divine.widget.damage_per_second.real_dps": "DPS: <highlight>%s</highlight>",
-  "text.divine.widget.damage_per_second.tps_adjusted_dps": "TPS Adjusted: <highlight>%s</highlight>",
+  "text.divine.widget.damage_per_second.tps_adjusted": "TPS Adjusted: <highlight>%s</highlight>",
 
   "text.divine.widget.loot_quality.base_quality": "Base Quality: <highlight>%s</highlight>",
   "text.divine.widget.loot_quality.final_quality": "Final Quality: <highlight>%s</highlight>",
