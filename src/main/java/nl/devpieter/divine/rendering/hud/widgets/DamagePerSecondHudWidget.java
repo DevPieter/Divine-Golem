@@ -64,7 +64,7 @@ public class DamagePerSecondHudWidget extends HudWidget {
     private List<Text> getDummyLines() {
         return List.of(
                 FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.real_dps", labelStyle, valueStyle, "32.139,84"),
-                FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.in_game_dps", labelStyle, valueStyle, "33.925,39")
+                FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, valueStyle, "28.456,12")
         );
     }
 
