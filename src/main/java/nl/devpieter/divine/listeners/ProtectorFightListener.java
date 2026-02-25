@@ -13,6 +13,7 @@ import nl.devpieter.divine.events.skyblock.protector.ProtectorFightBreakdownRead
 import nl.devpieter.divine.events.skyblock.protector.ProtectorFightStartEvent;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorStageUpdateEvent;
 import nl.devpieter.divine.models.fightBreakdown.FightDamageEntry;
+import nl.devpieter.divine.models.fightBreakdown.LootQualityBreakdown;
 import nl.devpieter.divine.models.fightBreakdown.ProtectorFightBreakdown;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
@@ -63,41 +64,15 @@ public class ProtectorFightListener implements SListener {
         sb.append("\n\n## Final Blow Details\n\n");
         sb.append("Final Blow: ").append(breakdown.finalBlow().playerName());
 
-        int baseQuality = switch (breakdown.myDamage().position()) {
-            case 1 -> 200;
-            case 2 -> 175;
-            case 3 -> 150;
-            case 4 -> 125;
-            case 5 -> 110;
-            case 6, 7, 8 -> 100;
-            case 9, 10 -> 90;
-            case 11, 12 -> 80;
-            default -> breakdown.myDamage().damage() > 0 ? 70 : 10;
-        };
+        LootQualityBreakdown qualityBreakdown = breakdown.calculateLootQualityBreakdown();
 
-        int damageDealt = breakdown.myDamage().damage();
-        int zealotContribution = breakdown.myZealotContribution().contribution();
-
-        int firstPlaceDamage = breakdown.damageEntries().stream()
-                .filter(entry -> entry.position() == 1)
-                .map(FightDamageEntry::damage)
-                .findFirst()
-                .orElse(0);
-
-        // Safeguard against division by zero
-        if (firstPlaceDamage <= 0) firstPlaceDamage = 1;
-
-        double damageRatio = (double) damageDealt / firstPlaceDamage;
-        double damageContribution = 50.0 * damageRatio;
-
-        int finalQuality = (int) Math.round(baseQuality + damageContribution + zealotContribution);
-
+        // LootQualityBreakdown
         /* Score Breakdown */
         sb.append("\n\n## Score Breakdown\n\n");
-        sb.append(String.format("- Base Quality from Placement: %d%n", baseQuality));
-        sb.append(String.format("- Damage Contribution: %f%n", damageContribution));
-        sb.append(String.format("- Zealot Contribution: %d%n", zealotContribution));
-        sb.append(String.format("- Final Quality: %d%n", finalQuality));
+        sb.append(String.format("- Base Quality from Placement: %d%n", qualityBreakdown.baseQuality()));
+        sb.append(String.format("- Damage Contribution: %f%n", qualityBreakdown.damageContribution()));
+        sb.append(String.format("- Zealot Contribution: %d%n", qualityBreakdown.zealotContribution()));
+        sb.append(String.format("- Final Quality: %d%n", qualityBreakdown.finalQuality()));
 
         /* Timing Details */
         sb.append("\n\n## Timing Details\n\n");

@@ -122,6 +122,10 @@ public class GolemManager implements SListener {
         return fightEndInGameTime;
     }
 
+    public ProtectorFightBreakdown currentFightBreakdown() {
+        return currentFightBreakdown;
+    }
+
     public String getFormattedStageText() {
         if (currentStage == GolemStage.UNDEFINED) return "N/A";
         return String.format("%s / %s", currentStage.stageName(), currentStage.stageNumber());
@@ -139,7 +143,34 @@ public class GolemManager implements SListener {
         stopDropScan();
         cancelBreakdownMatching();
 
+        resetFightData();
+
+//        currentDrops.clear();
+//
+//        isAboutToSpawn = false;
+//        hasWitnessedFightStart = false;
+//
+//        fightAboutToStartRealTime = -1;
+//        fightAboutToStartInGameTime = -1;
+//        fightStartRealTime = -1;
+//        fightStartInGameTime = -1;
+//        fightEndRealTime = -1;
+//        fightEndInGameTime = -1;
+//
+//        if (isFightActive) {
+//            isFightActive = false;
+//            sees.dispatch(new ProtectorFightEndEvent(true, false));
+//        }
+//
+//        fightLocation = GolemLocation.UNDEFINED;
+
+        if (currentStage != GolemStage.UNDEFINED) setStageWithEvent(GolemStage.UNDEFINED);
+        if (currentLocation != GolemLocation.UNDEFINED) setLocationWithEvent(GolemLocation.UNDEFINED);
+    }
+
+    private void resetFightData() {
         currentDrops.clear();
+        currentFightBreakdown = null;
 
         isAboutToSpawn = false;
         hasWitnessedFightStart = false;
@@ -157,9 +188,6 @@ public class GolemManager implements SListener {
         }
 
         fightLocation = GolemLocation.UNDEFINED;
-
-        if (currentStage != GolemStage.UNDEFINED) setStageWithEvent(GolemStage.UNDEFINED);
-        if (currentLocation != GolemLocation.UNDEFINED) setLocationWithEvent(GolemLocation.UNDEFINED);
     }
 
     @SEventListener
@@ -172,6 +200,8 @@ public class GolemManager implements SListener {
         if (RegexUtils.matches(STAGE_UPDATE_PATTERN, message)) {
             sees.dispatch(new ProtectorMilestoneReachedEvent());
         } else if (RegexUtils.matches(STAGE_UPDATE_5000_PATTERN, message)) {
+            resetFightData();
+
             fightAboutToStartRealTime = System.currentTimeMillis();
             fightAboutToStartInGameTime = WorldUtils.getWorldTime();
 
@@ -216,8 +246,7 @@ public class GolemManager implements SListener {
 
     @SEventListener
     private void onPlayerListUpdate(PlayerListUpdateEvent event) {
-        // TODO - Sometimes we receive a player list update before the locraw, this causes us to not detect the stage.
-        // if (!hypixelManager.isInTheEnd()) return;
+        if (!hypixelManager.isInTheEnd()) return;
 
         List<Text> displayNames = event.entries().stream()
                 .map(PlayerListS2CPacket.Entry::displayName)
