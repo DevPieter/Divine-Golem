@@ -18,8 +18,6 @@ public class CountdownHudWidget extends HudWidget {
     private static final long DIFFERENCE_DISPLAY_DURATION = 2_000;
 
     private final MinecraftClient client = MinecraftClient.getInstance();
-
-    private final HypixelManager hypixelManager = HypixelManager.getInstance();
     private final GolemManager golemManager = GolemManager.getInstance();
 
     private boolean isShowingDifference = false;
@@ -37,7 +35,7 @@ public class CountdownHudWidget extends HudWidget {
 
     @Override
     public boolean shouldRender() {
-        return hypixelManager.isInTheEnd() && golemManager.isAboutToSpawn();
+        return golemManager.isAboutToSpawn();
     }
 
     @Override

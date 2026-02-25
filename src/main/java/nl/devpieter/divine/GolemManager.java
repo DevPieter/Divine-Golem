@@ -2,6 +2,7 @@ package nl.devpieter.divine;
 
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import nl.devpieter.divine.enums.GolemLocation;
 import nl.devpieter.divine.enums.GolemStage;
 import nl.devpieter.divine.events.PlayerListUpdateEvent;
@@ -18,6 +19,7 @@ import nl.devpieter.sees.listener.SListener;
 import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
 import nl.devpieter.utilize.task.TaskManager;
 import nl.devpieter.utilize.task.tasks.RunLaterTask;
+import nl.devpieter.utilize.utils.minecraft.PlayerUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +34,13 @@ public class GolemManager implements SListener {
     private static final GolemManager INSTANCE = new GolemManager();
 
     private final Pattern STAGE_UPDATE_PATTERN = Pattern.compile("You feel a tremor from beneath the earth!", Pattern.CASE_INSENSITIVE);
-    private final Pattern STAGE_UPDATE_5000_PATTERN = Pattern.compile("The ground begins to shake as an End Stone Protector rises from below!", Pattern.CASE_INSENSITIVE);
-    private final Pattern SPAWN_PATTERN = Pattern.compile("BEWARE - An End Stone Protector has risen!", Pattern.CASE_INSENSITIVE);
-    private final Pattern DEATH_PATTERN = Pattern.compile("END STONE PROTECTOR DOWN!", Pattern.CASE_INSENSITIVE);
+//    private final Pattern STAGE_UPDATE_5000_PATTERN = Pattern.compile("The ground begins to shake as an End Stone Protector rises from below!", Pattern.CASE_INSENSITIVE);
+//    private final Pattern SPAWN_PATTERN = Pattern.compile("BEWARE - An End Stone Protector has risen!", Pattern.CASE_INSENSITIVE);
+//    private final Pattern DEATH_PATTERN = Pattern.compile("END STONE PROTECTOR DOWN!", Pattern.CASE_INSENSITIVE);
+
+    private final Pattern STAGE_UPDATE_5000_PATTERN = Pattern.compile("The ground begins to shake as an End ?Stone Protector rises from below!", Pattern.CASE_INSENSITIVE);
+    private final Pattern SPAWN_PATTERN = Pattern.compile("BEWARE - An End ?Stone Protector has risen!", Pattern.CASE_INSENSITIVE);
+    private final Pattern DEATH_PATTERN = Pattern.compile("END ?STONE PROTECTOR DOWN!", Pattern.CASE_INSENSITIVE);
 
     private final Pattern FINAL_BLOW_PATTERN = Pattern.compile("^(?:\\[[^\\]]+\\]\\s*)?(.+?)\\s+dealt the final blow\\.$", Pattern.CASE_INSENSITIVE);
     private final Pattern DAMAGE_ENTRY_PATTERN = Pattern.compile("^(\\d+)(?:st|nd|rd|th)\\s+Damager\\s+-\\s+(?:\\[[^\\]]+\\]\\s*)?([^-]+?)\\s+-\\s+([\\d,]+)$", Pattern.CASE_INSENSITIVE);
@@ -61,6 +67,7 @@ public class GolemManager implements SListener {
     private ProtectorFightBreakdown currentFightBreakdown = null;
 
     private boolean isAboutToSpawn = false;
+    private boolean hasWitnessedFightStart = false;
 
     private long fightAboutToStartRealTime = -1;
     private long fightAboutToStartInGameTime = -1;
@@ -135,6 +142,7 @@ public class GolemManager implements SListener {
         currentDrops.clear();
 
         isAboutToSpawn = false;
+        hasWitnessedFightStart = false;
 
         fightAboutToStartRealTime = -1;
         fightAboutToStartInGameTime = -1;
@@ -145,7 +153,7 @@ public class GolemManager implements SListener {
 
         if (isFightActive) {
             isFightActive = false;
-            sees.dispatch(new ProtectorFightEndEvent(true));
+            sees.dispatch(new ProtectorFightEndEvent(true, false));
         }
 
         fightLocation = GolemLocation.UNDEFINED;
@@ -177,6 +185,7 @@ public class GolemManager implements SListener {
 
             isAboutToSpawn = false;
             isFightActive = true;
+            hasWitnessedFightStart = true;
             fightLocation = currentLocation;
 
             sees.dispatch(new ProtectorFightStartEvent());
@@ -185,15 +194,23 @@ public class GolemManager implements SListener {
             fightEndInGameTime = WorldUtils.getWorldTime();
 
             isFightActive = false;
-            sees.dispatch(new ProtectorFightEndEvent(false));
+            sees.dispatch(new ProtectorFightEndEvent(false, hasWitnessedFightStart));
 
-            startDropScan();
+            if (fightLocation == GolemLocation.UNDEFINED) {
+                Text warningMessage = Text.literal("Couldn't determine fight location, unable to scan for drops!").formatted(Formatting.RED);
+                PlayerUtils.sendMessage(warningMessage, false);
+            } else startDropScan();
+
             startBreakdownMatching();
         }
 
         if (matchingForFightBreakdown) {
-            if (System.currentTimeMillis() - fightBreakdownMatchingStartTime > 10000) matchingForFightBreakdown = false;
-            else matchFightBreakdownMessage(message);
+            if (System.currentTimeMillis() - fightBreakdownMatchingStartTime > 10000) {
+                cancelBreakdownMatching();
+
+                Text warningMessage = Text.literal("Couldn't parse fight breakdown in time!").formatted(Formatting.RED);
+                PlayerUtils.sendMessage(warningMessage, false);
+            } else matchFightBreakdownMessage(message);
         }
     }
 
@@ -248,7 +265,16 @@ public class GolemManager implements SListener {
         matchingForFightBreakdown = true;
         fightBreakdownMatchingStartTime = System.currentTimeMillis();
 
-        currentFightBreakdown = new ProtectorFightBreakdown();
+        TimingDetails timings = new TimingDetails(
+                fightAboutToStartRealTime,
+                fightAboutToStartInGameTime,
+                fightStartRealTime,
+                fightStartInGameTime,
+                fightEndRealTime,
+                fightEndInGameTime
+        );
+
+        currentFightBreakdown = new ProtectorFightBreakdown(hasWitnessedFightStart, timings);
     }
 
     private void cancelBreakdownMatching() {
@@ -273,7 +299,7 @@ public class GolemManager implements SListener {
 
             taskManager.addTask(new RunLaterTask(() -> {
                 if (scanningForLocation) performLocationScan();
-            }, 20), TaskManager.TickPhase.PLAYER_TAIL);
+            }, 10), TaskManager.TickPhase.PLAYER_TAIL);
 
             return;
         }

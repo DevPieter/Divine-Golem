@@ -5,6 +5,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.HypixelManager;
+import nl.devpieter.divine.enums.GolemLocation;
+import nl.devpieter.divine.enums.GolemStage;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
 import nl.devpieter.divine.utils.FormatUtils;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +33,9 @@ public class TrackerHudWidget extends HudWidget {
 
     @Override
     public boolean shouldRender() {
-        return hypixelManager.isInTheEnd();
+        return hypixelManager.isInTheEnd()
+                || golemManager.currentStage() != GolemStage.UNDEFINED
+                || golemManager.currentLocation() != GolemLocation.UNDEFINED;
     }
 
     @Override

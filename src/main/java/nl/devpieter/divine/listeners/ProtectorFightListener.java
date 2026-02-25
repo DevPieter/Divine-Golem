@@ -39,6 +39,19 @@ public class ProtectorFightListener implements SListener {
         sb.append(String.format("Your Placement: %d%n", breakdown.myDamage().position()));
         sb.append(String.format("Zealots Contributed: %d/100%n", breakdown.myZealotContribution().contribution()));
 
+        if (breakdown.hasWitnessedFightStart()) {
+            long fightDurationRealSeconds = (breakdown.timingDetails().fightEndRealTime() - breakdown.timingDetails().fightStartRealTime()) / 1000;
+            long fightDurationInGameSeconds = (breakdown.timingDetails().fightEndInGameTime() - breakdown.timingDetails().fightStartInGameTime()) / 20;
+
+            double realDps = fightDurationRealSeconds > 0 ? (double) breakdown.myDamage().damage() / fightDurationRealSeconds : breakdown.myDamage().damage();
+            double inGameDps = fightDurationInGameSeconds > 0 ? (double) breakdown.myDamage().damage() / fightDurationInGameSeconds : breakdown.myDamage().damage();
+
+            sb.append(String.format("Your Real DPS: %,.2f%n", realDps));
+            sb.append(String.format("Your In-Game DPS: %,.2f%n", inGameDps));
+        } else {
+            sb.append("DPS details unavailable (fight start not witnessed)");
+        }
+
         /* Damage Rankings */
         sb.append("\n\n## Damage Rankings\n\n");
 
@@ -86,10 +99,23 @@ public class ProtectorFightListener implements SListener {
         sb.append(String.format("- Zealot Contribution: %d%n", zealotContribution));
         sb.append(String.format("- Final Quality: %d%n", finalQuality));
 
-        System.out.println(sb);
+        /* Timing Details */
+        sb.append("\n\n## Timing Details\n\n");
+        if (breakdown.hasWitnessedFightStart()) {
+            long fightDurationRealSeconds = (breakdown.timingDetails().fightEndRealTime() - breakdown.timingDetails().fightStartRealTime()) / 1000;
+            long fightDurationInGameSeconds = (breakdown.timingDetails().fightEndInGameTime() - breakdown.timingDetails().fightStartInGameTime()) / 20;
 
-//        MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
-//        PlayerUtils.sendMessage(Text.of("Damage breakdown copied to clipboard!"), true);
+            long timeBeforeSpawnRealSeconds = (breakdown.timingDetails().fightStartRealTime() - breakdown.timingDetails().fightAboutToStartRealTime()) / 1000;
+            long timeBeforeSpawnInGameSeconds = (breakdown.timingDetails().fightStartInGameTime() - breakdown.timingDetails().fightAboutToStartInGameTime()) / 20;
+
+            sb.append(String.format("- Time Before Spawn: %d seconds (IGT: %d seconds)%n", timeBeforeSpawnRealSeconds, timeBeforeSpawnInGameSeconds));
+            sb.append(String.format("- Fight Duration: %d seconds (IGT: %d seconds)%n", fightDurationRealSeconds, fightDurationInGameSeconds));
+        } else {
+            sb.append("Timing details unavailable (fight start not witnessed)");
+        }
+
+        System.out.println(sb);
+        MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
     }
 
     @SEventListener
