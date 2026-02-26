@@ -7,8 +7,8 @@ import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.HypixelManager;
 import nl.devpieter.divine.enums.GolemLocation;
 import nl.devpieter.divine.enums.GolemStage;
+import nl.devpieter.divine.formatter.TextFormatUtils;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
-import nl.devpieter.divine.utils.FormatUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,8 +42,8 @@ public class TrackerHudWidget extends HudWidget {
     protected void renderWidget(DrawContext context) {
         List<Text> lines = new ArrayList<>();
 
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.tracker.stage", labelStyle, valueStyle, golemManager.getFormattedStageText()));
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.tracker.location", labelStyle, valueStyle, golemManager.getFormattedLocationText()));
+        lines.add(TextFormatUtils.format("text.divine.widget.tracker.stage", labelStyle, golemManager.getFormattedStageText()));
+        lines.add(TextFormatUtils.format("text.divine.widget.tracker.location", labelStyle, golemManager.getFormattedLocationText()));
 
         drawDynamicBox(context, 0, 0, backgroundColor, getTitle(), lines, client.textRenderer);
     }
@@ -64,13 +64,13 @@ public class TrackerHudWidget extends HudWidget {
     }
 
     private Text getTitle() {
-        return FormatUtils.formatTranslatable("text.divine.widget.tracker.title", titleStyle, valueStyle);
+        return TextFormatUtils.format("text.divine.widget.tracker.title", titleStyle);
     }
 
     private List<Text> getDummyLines() {
         return List.of(
-                FormatUtils.formatTranslatable("text.divine.widget.tracker.stage", labelStyle, valueStyle, "Stage Name"),
-                FormatUtils.formatTranslatable("text.divine.widget.tracker.location", labelStyle, valueStyle, "Location Name")
+                TextFormatUtils.format("text.divine.widget.tracker.stage", labelStyle, "Stage Name"),
+                TextFormatUtils.format("text.divine.widget.tracker.location", labelStyle, "Location Name")
         );
     }
 }

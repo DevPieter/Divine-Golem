@@ -6,6 +6,9 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
+import nl.devpieter.divine.enums.Rarity;
+import nl.devpieter.divine.formatter.TextFormatRegistry;
+import nl.devpieter.divine.formatter.formats.StyleFormatter;
 import nl.devpieter.divine.listeners.*;
 import nl.devpieter.divine.rendering.hud.HudManager;
 import nl.devpieter.divine.rendering.hud.models.WidgetOptions;
@@ -48,6 +51,14 @@ public class Divine implements ClientModInitializer {
         hudManager.registerWidget(new CountdownHudWidget(), new WidgetOptions(20, 80));
         hudManager.registerWidget(new LootQualityHudWidget(), new WidgetOptions(230, 20));
         hudManager.registerWidget(new DamagePerSecondHudWidget(), new WidgetOptions(230, 50));
+
+        TextFormatRegistry formatRegistry = TextFormatRegistry.getInstance();
+        formatRegistry.register(new StyleFormatter("highlight", 0x3be477));
+        formatRegistry.register(new StyleFormatter("r:common", Rarity.COMMON.color()));
+        formatRegistry.register(new StyleFormatter("r:uncommon", Rarity.UNCOMMON.color()));
+        formatRegistry.register(new StyleFormatter("r:rare", Rarity.RARE.color()));
+        formatRegistry.register(new StyleFormatter("r:epic", Rarity.EPIC.color()));
+        formatRegistry.register(new StyleFormatter("r:legendary", Rarity.LEGENDARY.color()));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (editHudKeyBinding.wasPressed()) hudManager.openEditScreen();

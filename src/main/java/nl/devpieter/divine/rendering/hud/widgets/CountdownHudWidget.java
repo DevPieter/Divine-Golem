@@ -4,9 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import nl.devpieter.divine.GolemManager;
-import nl.devpieter.divine.HypixelManager;
+import nl.devpieter.divine.formatter.TextFormatUtils;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
-import nl.devpieter.divine.utils.FormatUtils;
 import nl.devpieter.divine.utils.WorldUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,8 +40,8 @@ public class CountdownHudWidget extends HudWidget {
     @Override
     protected void renderWidget(DrawContext context) {
         List<Text> lines = new ArrayList<>();
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.countdown.spawns_in", labelStyle, valueStyle, getFormattedRealTime()));
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.countdown.tps_adjusted", labelStyle, valueStyle, getFormattedInGameTime()));
+        lines.add(TextFormatUtils.format("text.divine.widget.countdown.spawns_in", labelStyle, getFormattedRealTime()));
+        lines.add(TextFormatUtils.format("text.divine.widget.countdown.tps_adjusted", labelStyle, getFormattedInGameTime()));
 
         lines.addAll(getOptionalDifferenceLines());
         drawDynamicBox(context, 0, 0, backgroundColor, lines, client.textRenderer);
@@ -65,10 +64,10 @@ public class CountdownHudWidget extends HudWidget {
 
     private List<Text> getDummyLines() {
         return List.of(
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.spawns_in", labelStyle, valueStyle, "16.1 seconds"),
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.tps_adjusted", labelStyle, valueStyle, "16.7 seconds"),
+                TextFormatUtils.format("text.divine.widget.countdown.spawns_in", labelStyle, "16.1 seconds"),
+                TextFormatUtils.format("text.divine.widget.countdown.tps_adjusted", labelStyle, "16.7 seconds"),
                 Text.empty(),
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.difference", labelStyle, valueStyle, "+0.60 seconds")
+                TextFormatUtils.format("text.divine.widget.countdown.difference", labelStyle, "+0.60 seconds")
         );
     }
 
@@ -123,7 +122,7 @@ public class CountdownHudWidget extends HudWidget {
 
         return List.of(
                 Text.empty(),
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.difference", labelStyle, valueStyle, getFormattedDifference())
+                TextFormatUtils.format("text.divine.widget.countdown.difference", labelStyle, getFormattedDifference())
         );
     }
 

@@ -4,9 +4,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import nl.devpieter.divine.GolemManager;
+import nl.devpieter.divine.formatter.TextFormatUtils;
 import nl.devpieter.divine.models.fightBreakdown.DamageBreakdown;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
-import nl.devpieter.divine.utils.FormatUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -40,8 +40,8 @@ public class DamagePerSecondHudWidget extends HudWidget {
         DamageBreakdown breakdown = golemManager.currentFightBreakdown().calculateDamageBreakdown();
         if (breakdown == null) return;
 
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.real_dps", labelStyle, valueStyle, formatDecimal(breakdown.realDps())));
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, valueStyle, formatDecimal(breakdown.inGameDps())));
+        lines.add(TextFormatUtils.format("text.divine.widget.damage_per_second.real_dps", labelStyle, formatDecimal(breakdown.realDps())));
+        lines.add(TextFormatUtils.format("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, formatDecimal(breakdown.inGameDps())));
 
         drawDynamicBox(context, 0, 0, backgroundColor, lines, client.textRenderer);
     }
@@ -63,8 +63,8 @@ public class DamagePerSecondHudWidget extends HudWidget {
 
     private List<Text> getDummyLines() {
         return List.of(
-                FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.real_dps", labelStyle, valueStyle, "32.139,84"),
-                FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, valueStyle, "28.456,12")
+                TextFormatUtils.format("text.divine.widget.damage_per_second.real_dps", labelStyle, "32.139,84"),
+                TextFormatUtils.format("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, "28.456,12")
         );
     }
 
