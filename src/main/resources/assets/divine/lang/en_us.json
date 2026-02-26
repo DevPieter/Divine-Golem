@@ -27,6 +27,11 @@
   "text.divine.widget.loot_quality.golem_pet_legendary": "<r:legendary>Golem Pet</r:legendary>: %s",
   "text.divine.widget.loot_quality.golem_pet_epic": "<r:epic>Golem Pet</r:epic>: %s",
 
+  "text.divine.widget.timing_breakdown.fight_duration.real": "Fight Duration: <highlight>%s</highlight>",
+  "text.divine.widget.timing_breakdown.fight_duration.tps_adjusted": "TPS Adjusted: <highlight>%s</highlight>",
+  "text.divine.widget.timing_breakdown.time_before_spawn.real": "Time Before Spawn: <highlight>%s</highlight>",
+  "text.divine.widget.timing_breakdown.time_before_spawn.tps_adjusted": "TPS Adjusted: <highlight>%s</highlight>",
+
   "text.divine.widget.tracker.title": "Divine Golem // Tracker",
   "text.divine.widget.tracker.stage": "Stage: <highlight>%s</highlight>",
   "text.divine.widget.tracker.location": "Location: <highlight>%s</highlight>"

@@ -38,14 +38,14 @@ public class TimingBreakdownHudWidget extends HudWidget {
         if (breakdown == null) return;
 
         List<IText> lines = new ArrayList<>();
-//        lines.add(TextLine.off("text.divine.widget.timing_breakdown.fight_duration_real", labelStyle, formatTime(breakdown.fightDurationRealMilliseconds())));
-//        lines.add(TextLine.off("text.divine.widget.timing_breakdown.fight_duration_in_game", labelStyle, formatTime(breakdown.fightDurationInGameMilliseconds())));
+//        lines.add(TextLine.off("text.divine.widget.timing_breakdown.fight_duration.real", labelStyle, formatTime(breakdown.fightDurationRealMilliseconds())));
+//        lines.add(TextLine.off("text.divine.widget.timing_breakdown.fight_duration.tps_adjusted", labelStyle, formatTime(breakdown.fightDurationInGameMilliseconds())));
 //        lines.add(TextSpacer.of(6));
-//        lines.add(TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn_real", labelStyle, formatTime(breakdown.timeBeforeSpawnRealMilliseconds())));
-//        lines.add(TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn_in_game", labelStyle, formatTime(breakdown.timeBeforeSpawnInGameMilliseconds())));
+//        lines.add(TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn.real", labelStyle, formatTime(breakdown.timeBeforeSpawnRealMilliseconds())));
+//        lines.add(TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn.tps_adjusted", labelStyle, formatTime(breakdown.timeBeforeSpawnInGameMilliseconds())));
 
-        lines.add(TextLine.off("text.divine.widget.timing_breakdown.fight_duration_real", labelStyle, formatTime(breakdown.fightDurationInGameMilliseconds())));
-        lines.add(TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn_real", labelStyle, formatTime(breakdown.timeBeforeSpawnInGameMilliseconds())));
+        lines.add(TextLine.off("text.divine.widget.timing_breakdown.fight_duration.real", labelStyle, formatTime(breakdown.fightDurationInGameMilliseconds())));
+        lines.add(TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn.real", labelStyle, formatTime(breakdown.timeBeforeSpawnInGameMilliseconds())));
 
         drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, lines);
     }
@@ -67,8 +67,8 @@ public class TimingBreakdownHudWidget extends HudWidget {
 
     private List<IText> getDummyLines() {
         return List.of(
-                TextLine.off("text.divine.widget.timing_breakdown.fight_duration_real", labelStyle, "13.345"),
-                TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn_real", labelStyle, "20.000")
+                TextLine.off("text.divine.widget.timing_breakdown.fight_duration.real", labelStyle, "13.345"),
+                TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn.real", labelStyle, "20.000")
         );
     }
 
