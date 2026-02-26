@@ -54,6 +54,8 @@ public class Divine implements ClientModInitializer {
 
         TextFormatRegistry formatRegistry = TextFormatRegistry.getInstance();
         formatRegistry.register(new StyleFormatter("highlight", 0x3be477));
+        formatRegistry.register(new StyleFormatter("yes", 0x3be477));
+        formatRegistry.register(new StyleFormatter("no", 0xe43b3b));
         formatRegistry.register(new StyleFormatter("r:common", Rarity.COMMON.color()));
         formatRegistry.register(new StyleFormatter("r:uncommon", Rarity.UNCOMMON.color()));
         formatRegistry.register(new StyleFormatter("r:rare", Rarity.RARE.color()));
