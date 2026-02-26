@@ -50,6 +50,7 @@ public class LootQualityHudWidget extends HudWidget {
         List<IText> lines = new ArrayList<>();
 //        lines.add(TextFormatUtils.format("text.divine.widget.loot_quality.base_quality", labelStyle, valueStyle, breakdown.baseQuality()));
         lines.add(TextLine.off("text.divine.widget.loot_quality.final_quality", labelStyle, breakdown.finalQuality()));
+        lines.add(TextSpacer.of(6));
 
         String yes = Text.translatable("text.divine.generic.yes").getString();
         String no = Text.translatable("text.divine.generic.no").getString();
@@ -87,7 +88,7 @@ public class LootQualityHudWidget extends HudWidget {
 
         return List.of(
                 TextLine.off("text.divine.widget.loot_quality.final_quality", labelStyle, "235"),
-                TextSpacer.of(4),
+                TextSpacer.of(6),
                 ItemStackText.off(tierBoostCoreStack, "text.divine.widget.loot_quality.tier_boost_core", labelStyle, no),
                 ItemStackText.off(golemPetStack, "text.divine.widget.loot_quality.golem_pet_legendary", labelStyle, yes),
                 ItemStackText.off(golemPetStack, "text.divine.widget.loot_quality.golem_pet_epic", labelStyle, yes)

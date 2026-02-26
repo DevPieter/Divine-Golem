@@ -12,7 +12,7 @@ import nl.devpieter.divine.events.skyblock.protector.ProtectorAboutToSpawnEvent;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorFightBreakdownReadyEvent;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorFightStartEvent;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorStageUpdateEvent;
-import nl.devpieter.divine.models.fightBreakdown.FightDamageEntry;
+import nl.devpieter.divine.models.fightBreakdown.details.FightDamageEntry;
 import nl.devpieter.divine.models.fightBreakdown.LootQualityBreakdown;
 import nl.devpieter.divine.models.fightBreakdown.ProtectorFightBreakdown;
 import nl.devpieter.sees.annotations.SEventListener;
@@ -90,7 +90,7 @@ public class ProtectorFightListener implements SListener {
         }
 
         System.out.println(sb);
-        MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
+//        MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
     }
 
     @SEventListener

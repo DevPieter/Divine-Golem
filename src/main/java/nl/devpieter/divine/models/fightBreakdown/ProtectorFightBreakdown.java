@@ -1,5 +1,6 @@
 package nl.devpieter.divine.models.fightBreakdown;
 
+import nl.devpieter.divine.models.fightBreakdown.details.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class ProtectorFightBreakdown {
 
     private DamageBreakdown cachedDamageBreakdown = null;
     private LootQualityBreakdown cachedLootQualityBreakdown = null;
+    private TimingBreakdown cachedTimingBreakdown = null;
 
     public ProtectorFightBreakdown(boolean hasWitnessedFightStart, TimingDetails timingDetails) {
         this.hasWitnessedFightStart = hasWitnessedFightStart;
@@ -131,6 +133,30 @@ public class ProtectorFightBreakdown {
         );
 
         cachedLootQualityBreakdown = breakdown;
+        return breakdown;
+    }
+
+    public @Nullable TimingBreakdown calculateTimingBreakdown() {
+        if (cachedTimingBreakdown != null) return cachedTimingBreakdown;
+        if (!hasWitnessedFightStart()) return null;
+
+        TimingDetails timing = timingDetails();
+        if (timing == null) return null;
+
+        long fightDurationRealMilliseconds = Math.max(timing.fightEndRealTime() - timing.fightStartRealTime(), 0);
+        long fightDurationInGameMilliseconds = Math.max(timing.fightEndInGameTime() - timing.fightStartInGameTime(), 0);
+
+        long timeBeforeSpawnRealMilliseconds = Math.max(timing.fightStartRealTime() - timing.fightAboutToStartRealTime(), 0);
+        long timeBeforeSpawnInGameMilliseconds = Math.max(timing.fightStartInGameTime() - timing.fightAboutToStartInGameTime(), 0);
+
+        TimingBreakdown breakdown = new TimingBreakdown(
+                fightDurationRealMilliseconds,
+                fightDurationInGameMilliseconds,
+                timeBeforeSpawnRealMilliseconds,
+                timeBeforeSpawnInGameMilliseconds
+        );
+
+        cachedTimingBreakdown = breakdown;
         return breakdown;
     }
 }

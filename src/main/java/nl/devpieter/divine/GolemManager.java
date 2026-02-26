@@ -10,6 +10,7 @@ import nl.devpieter.divine.events.skyblock.SkyblockLocationUpdateEvent;
 import nl.devpieter.divine.events.skyblock.protector.*;
 import nl.devpieter.divine.models.GolemDrop;
 import nl.devpieter.divine.models.fightBreakdown.*;
+import nl.devpieter.divine.models.fightBreakdown.details.*;
 import nl.devpieter.divine.utils.GolemUtils;
 import nl.devpieter.divine.utils.RegexUtils;
 import nl.devpieter.divine.utils.WorldUtils;

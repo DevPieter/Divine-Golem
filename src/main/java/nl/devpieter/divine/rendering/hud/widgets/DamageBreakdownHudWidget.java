@@ -12,19 +12,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DamagePerSecondHudWidget extends HudWidget {
+public class DamageBreakdownHudWidget extends HudWidget {
 
     private final MinecraftClient client = MinecraftClient.getInstance();
     private final GolemManager golemManager = GolemManager.getInstance();
 
     @Override
     public @NotNull String name() {
-        return "Damage Per Second";
+        return "Damage Breakdown";
     }
 
     @Override
     public @NotNull String identifier() {
-        return "damage_per_second";
+        return "damage_breakdown";
     }
 
     @Override
@@ -39,8 +39,10 @@ public class DamagePerSecondHudWidget extends HudWidget {
         if (breakdown == null) return;
 
         List<IText> lines = new ArrayList<>();
+//        lines.add(TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, formatDecimal(breakdown.realDps())));
+//        lines.add(TextLine.off("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, formatDecimal(breakdown.inGameDps())));
+
         lines.add(TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, formatDecimal(breakdown.realDps())));
-        lines.add(TextLine.off("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, formatDecimal(breakdown.inGameDps())));
 
         drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, lines);
     }
@@ -62,8 +64,8 @@ public class DamagePerSecondHudWidget extends HudWidget {
 
     private List<IText> getDummyLines() {
         return List.of(
-                TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, "32.139,84"),
-                TextLine.off("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, "28.456,12")
+                TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, "32.139,84")
+//                TextLine.off("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, "28.456,12")
         );
     }
 

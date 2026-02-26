@@ -68,7 +68,6 @@ public class CountdownHudWidget extends HudWidget {
                 TextLine.off("text.divine.widget.countdown.spawns_in", labelStyle, "16.1 seconds"),
                 TextLine.off("text.divine.widget.countdown.tps_adjusted", labelStyle, "16.7 seconds"),
                 TextSpacer.of(16),
-//                TextLine.empty(),
                 TextLine.off("text.divine.widget.countdown.difference", labelStyle, "+0.60 seconds")
         );
     }
@@ -123,7 +122,7 @@ public class CountdownHudWidget extends HudWidget {
         }
 
         return List.of(
-                TextLine.empty(),
+                TextSpacer.of(16),
                 TextLine.off("text.divine.widget.countdown.difference", labelStyle, getFormattedDifference())
         );
     }
