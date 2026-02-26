@@ -67,11 +67,8 @@ public class TimingBreakdownHudWidget extends HudWidget {
 
     private List<IText> getDummyLines() {
         return List.of(
-                TextLine.off("Fight Duration: <highlight>%s</highlight>", labelStyle, "15.345"),
-//                TextLine.off("TPS Adjusted: <highlight>%s</highlight>", labelStyle, "14.750"),
-//                TextSpacer.of(6),
-                TextLine.off("Time Before Spawn: <highlight>%s</highlight>", labelStyle, "20.000")
-//                TextLine.off("TPS Adjusted: <highlight>%s</highlight>", labelStyle, "19.500")
+                TextLine.off("text.divine.widget.timing_breakdown.fight_duration_real", labelStyle, "13.345"),
+                TextLine.off("text.divine.widget.timing_breakdown.time_before_spawn_real", labelStyle, "20.000")
         );
     }
 

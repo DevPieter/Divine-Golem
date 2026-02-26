@@ -84,12 +84,11 @@ public class LootQualityHudWidget extends HudWidget {
 
     private List<IText> getDummyLines() {
         String yes = Text.translatable("text.divine.generic.yes").getString();
-        String no = Text.translatable("text.divine.generic.no").getString();
 
         return List.of(
-                TextLine.off("text.divine.widget.loot_quality.final_quality", labelStyle, "235"),
+                TextLine.off("text.divine.widget.loot_quality.final_quality", labelStyle, "250"),
                 TextSpacer.of(6),
-                ItemStackText.off(tierBoostCoreStack, "text.divine.widget.loot_quality.tier_boost_core", labelStyle, no),
+                ItemStackText.off(tierBoostCoreStack, "text.divine.widget.loot_quality.tier_boost_core", labelStyle, yes),
                 ItemStackText.off(golemPetStack, "text.divine.widget.loot_quality.golem_pet_legendary", labelStyle, yes),
                 ItemStackText.off(golemPetStack, "text.divine.widget.loot_quality.golem_pet_epic", labelStyle, yes)
         );

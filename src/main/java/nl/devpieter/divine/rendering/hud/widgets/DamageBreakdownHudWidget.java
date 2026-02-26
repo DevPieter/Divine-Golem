@@ -64,8 +64,8 @@ public class DamageBreakdownHudWidget extends HudWidget {
 
     private List<IText> getDummyLines() {
         return List.of(
-                TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, "32.139,84")
-//                TextLine.off("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, "28.456,12")
+                TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, "4,006,828.38")
+//                TextLine.off("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, "4,006,828.38")
         );
     }
 
