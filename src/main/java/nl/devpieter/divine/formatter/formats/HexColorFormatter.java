@@ -5,14 +5,14 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import nl.devpieter.divine.formatter.ITextFormatter;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public class HexColorFormatter implements ITextFormatter {
 
     private final String tag;
     private final TextColor color;
 
-    public HexColorFormatter(@NonNull String hex) {
+    public HexColorFormatter(@NotNull String hex) {
         this.tag = hex;
         this.color = TextColor.fromRgb(Integer.parseInt(hex.substring(1), 16));
     }

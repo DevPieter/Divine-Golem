@@ -18,7 +18,6 @@ public class TextFormatUtils {
 
     public static MutableText format(String key, Style style, Object... args) {
         String raw = Text.translatable(key, args).getString();
-//        System.out.println("Formatting text: " + raw);
 
         String tagAlternatives = REGISTRY.formatters().keySet().stream().map(Pattern::quote).collect(Collectors.joining("|"));
         Pattern pattern = Pattern.compile("<(#[0-9a-fA-F]{6}|" + tagAlternatives + ")>(.*?)</\\1>", Pattern.DOTALL);
