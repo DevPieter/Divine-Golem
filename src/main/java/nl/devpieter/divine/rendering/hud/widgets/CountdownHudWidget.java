@@ -2,11 +2,11 @@ package nl.devpieter.divine.rendering.hud.widgets;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
 import nl.devpieter.divine.GolemManager;
-import nl.devpieter.divine.HypixelManager;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
-import nl.devpieter.divine.utils.FormatUtils;
+import nl.devpieter.divine.rendering.text.IText;
+import nl.devpieter.divine.rendering.text.texts.TextLine;
+import nl.devpieter.divine.rendering.text.texts.TextSpacer;
 import nl.devpieter.divine.utils.WorldUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,35 +40,35 @@ public class CountdownHudWidget extends HudWidget {
 
     @Override
     protected void renderWidget(DrawContext context) {
-        List<Text> lines = new ArrayList<>();
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.countdown.spawns_in", labelStyle, valueStyle, getFormattedRealTime()));
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.countdown.tps_adjusted", labelStyle, valueStyle, getFormattedInGameTime()));
+        List<IText> lines = new ArrayList<>();
+        lines.add(TextLine.off("text.divine.widget.countdown.spawns_in", labelStyle, getFormattedRealTime()));
+        lines.add(TextLine.off("text.divine.widget.countdown.tps_adjusted", labelStyle, getFormattedInGameTime()));
 
         lines.addAll(getOptionalDifferenceLines());
-        drawDynamicBox(context, 0, 0, backgroundColor, lines, client.textRenderer);
+        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, lines);
     }
 
     @Override
     protected void renderDummyWidget(DrawContext context) {
-        drawDynamicBox(context, 0, 0, backgroundColor, getDummyLines(), client.textRenderer);
+        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, getDummyLines());
     }
 
     @Override
     public int dummyWidth() {
-        return calculateBoxWidth(getDummyLines(), client.textRenderer);
+        return calculateBoxWidth(client.textRenderer, getDummyLines());
     }
 
     @Override
     public int dummyHeight() {
-        return calculateBoxHeight(getDummyLines(), client.textRenderer);
+        return calculateBoxHeight(client.textRenderer, getDummyLines());
     }
 
-    private List<Text> getDummyLines() {
+    private List<IText> getDummyLines() {
         return List.of(
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.spawns_in", labelStyle, valueStyle, "16.1 seconds"),
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.tps_adjusted", labelStyle, valueStyle, "16.7 seconds"),
-                Text.empty(),
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.difference", labelStyle, valueStyle, "+0.60 seconds")
+                TextLine.off("text.divine.widget.countdown.spawns_in", labelStyle, "16.1 seconds"),
+                TextLine.off("text.divine.widget.countdown.tps_adjusted", labelStyle, "16.7 seconds"),
+                TextSpacer.of(16),
+                TextLine.off("text.divine.widget.countdown.difference", labelStyle, "+0.60 seconds")
         );
     }
 
@@ -108,7 +108,7 @@ public class CountdownHudWidget extends HudWidget {
         return inGameTimeSecondsLeft == -1 ? "N/A" : getFormattedTime(inGameTimeSecondsLeft);
     }
 
-    private List<Text> getOptionalDifferenceLines() {
+    private List<IText> getOptionalDifferenceLines() {
         if (!hasNotableDifference() && !isShowingDifference) return List.of();
 
         if (hasNotableDifference()) {
@@ -122,8 +122,8 @@ public class CountdownHudWidget extends HudWidget {
         }
 
         return List.of(
-                Text.empty(),
-                FormatUtils.formatTranslatable("text.divine.widget.countdown.difference", labelStyle, valueStyle, getFormattedDifference())
+                TextSpacer.of(16),
+                TextLine.off("text.divine.widget.countdown.difference", labelStyle, getFormattedDifference())
         );
     }
 

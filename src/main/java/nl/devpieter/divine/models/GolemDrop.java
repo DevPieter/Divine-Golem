@@ -9,10 +9,4 @@ public record GolemDrop(
         Rarity rarity,
         int quantity
 ) {
-
-    // TODO - For testing only, remove later
-    @Override
-    public @NotNull String toString() {
-        return String.format("%s x%d [%s]", type.dropName(), quantity, rarity.rarityName());
-    }
 }
