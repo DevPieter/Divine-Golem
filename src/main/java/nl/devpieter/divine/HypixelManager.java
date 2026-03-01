@@ -38,7 +38,7 @@ public class HypixelManager implements SListener {
     }
 
     public boolean isInSkyblock() {
-        if (!isOnHypixel || currentLocation == null) return false;
+        if (!isOnHypixel || currentLocation == null || currentLocation.gametype() == null) return false;
         return "skyblock".equalsIgnoreCase(currentLocation.gametype());
     }
 

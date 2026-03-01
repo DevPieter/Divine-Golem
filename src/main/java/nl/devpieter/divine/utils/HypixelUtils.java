@@ -26,10 +26,12 @@ public class HypixelUtils {
         if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return null;
 
         String server = RegexUtils.findFirstGroup(SERVER_PATTERN, trimmed);
-        String gametype = RegexUtils.findFirstGroup(GAMETYPE_PATTERN, trimmed);
-        String map = RegexUtils.findFirstGroup(MAP_PATTERN, trimmed);
+        if (server == null) return null;
 
-        if (server == null || gametype == null) return null;
-        return new HypixelLocation(server, gametype, map);
+        return new HypixelLocation(
+                server,
+                RegexUtils.findFirstGroup(GAMETYPE_PATTERN, trimmed),
+                RegexUtils.findFirstGroup(MAP_PATTERN, trimmed)
+        );
     }
 }
