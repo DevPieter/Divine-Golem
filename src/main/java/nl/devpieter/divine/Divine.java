@@ -4,7 +4,12 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import nl.devpieter.divine.enums.Rarity;
 import nl.devpieter.divine.formatter.TextFormatRegistry;
@@ -16,6 +21,7 @@ import nl.devpieter.divine.rendering.hud.widgets.*;
 import nl.devpieter.sees.Sees;
 import nl.devpieter.utilize.managers.PacketManager;
 import nl.devpieter.utilize.utils.minecraft.ClientUtils;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 public class Divine implements ClientModInitializer {
@@ -63,5 +69,20 @@ public class Divine implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (editHudKeyBinding.wasPressed()) hudManager.openEditScreen();
         });
+
+//        SoundEvent sound = SoundEvents.BLOCK_ANVIL_LAND;
+
+        Identifier MY_SOUND_ID = Identifier.of("tutorial:my_sound");
+        SoundEvent MY_SOUND_EVENT = SoundEvent.of(MY_SOUND_ID);
+        Registry.register(Registries.SOUND_EVENT, MY_SOUND_ID, MY_SOUND_EVENT);
+    }
+
+    public static void playOnMaster(@NotNull SoundEvent soundEvent, float pitch, float volume) {
+        play(PositionedSoundInstance.ui(soundEvent, pitch, volume));
+    }
+
+    public static void play(@NotNull SoundInstance soundInstance) {
+        if (!ClientUtils.hasSoundManager()) return;
+        ClientUtils.getSoundManager().play(soundInstance);
     }
 }

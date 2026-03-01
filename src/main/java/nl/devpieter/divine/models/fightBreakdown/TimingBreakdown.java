@@ -1,9 +1,9 @@
 package nl.devpieter.divine.models.fightBreakdown;
 
 public record TimingBreakdown(
-        long fightDurationRealMilliseconds,
-        long fightDurationInGameMilliseconds,
-        long timeBeforeSpawnRealMilliseconds,
-        long timeBeforeSpawnInGameMilliseconds
+        long fightDurationRealMillis,
+        long fightDurationInGameMillis,
+        long timeBeforeSpawnRealMillis,
+        long timeBeforeSpawnInGameMillis
 ) {
 }

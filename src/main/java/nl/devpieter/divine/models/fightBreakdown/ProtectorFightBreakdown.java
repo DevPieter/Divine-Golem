@@ -1,6 +1,7 @@
 package nl.devpieter.divine.models.fightBreakdown;
 
 import nl.devpieter.divine.models.fightBreakdown.details.*;
+import nl.devpieter.divine.utils.TimeUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -80,14 +81,16 @@ public class ProtectorFightBreakdown {
         MyDamageDetails mDamage = myDamage();
         if (timing == null || mDamage == null) return null;
 
-        long durationRealSeconds = Math.max((timing.fightEndRealTime() - timing.fightStartRealTime()) / 1000, 1);
-        long durationInGameSeconds = Math.max((timing.fightEndInGameTime() - timing.fightStartInGameTime()) / 20, 1);
+        long durationRealSeconds = TimeUtils.msToDurationSeconds(timing.fightStartRealTime(), timing.fightEndRealTime());
+        long durationInGameSeconds = TimeUtils.ticksToDurationSeconds(timing.fightStartInGameTime(), timing.fightEndInGameTime());
 
-        double realDps = (double) mDamage.damage() / durationRealSeconds;
-        double inGameDps = (double) mDamage.damage() / durationInGameSeconds;
+        double realDps = -1;
+        if (durationRealSeconds > 0) realDps = (double) mDamage.damage() / durationRealSeconds;
+
+        double inGameDps = -1;
+        if (durationInGameSeconds > 0) inGameDps = (double) mDamage.damage() / durationInGameSeconds;
 
         DamageBreakdown breakdown = new DamageBreakdown(mDamage, realDps, inGameDps);
-
         cachedDamageBreakdown = breakdown;
         return breakdown;
     }
@@ -143,17 +146,11 @@ public class ProtectorFightBreakdown {
         TimingDetails timing = timingDetails();
         if (timing == null) return null;
 
-        long fightDurationRealMilliseconds = Math.max(timing.fightEndRealTime() - timing.fightStartRealTime(), 0);
-        long fightDurationInGameMilliseconds = Math.max(timing.fightEndInGameTime() - timing.fightStartInGameTime(), 0);
-
-        long timeBeforeSpawnRealMilliseconds = Math.max(timing.fightStartRealTime() - timing.fightAboutToStartRealTime(), 0);
-        long timeBeforeSpawnInGameMilliseconds = Math.max(timing.fightStartInGameTime() - timing.fightAboutToStartInGameTime(), 0);
-
         TimingBreakdown breakdown = new TimingBreakdown(
-                fightDurationRealMilliseconds,
-                fightDurationInGameMilliseconds,
-                timeBeforeSpawnRealMilliseconds,
-                timeBeforeSpawnInGameMilliseconds
+                TimeUtils.msToDurationMillis(timing.fightStartRealTime(), timing.fightEndRealTime()),
+                TimeUtils.ticksToDurationMillis(timing.fightStartInGameTime(), timing.fightEndInGameTime()),
+                TimeUtils.msToDurationMillis(timing.fightAboutToStartRealTime(), timing.fightStartRealTime()),
+                TimeUtils.ticksToDurationMillis(timing.fightAboutToStartInGameTime(), timing.fightStartInGameTime())
         );
 
         cachedTimingBreakdown = breakdown;
