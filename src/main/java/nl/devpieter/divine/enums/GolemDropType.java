@@ -10,7 +10,7 @@ public enum GolemDropType {
     ENCHANTED_END_STONE("Enchanted End Stone"),
     CRYSTAL_FRAGMENT("Crystal Fragment"),
     TIER_BOOST_CORE("Tier Boost Core"),
-    GOLEM_PET("Golem Pet");
+    GOLEM_PET("[Lvl 1] Golem");
 
     public static final Map<String, GolemDropType> DROP_LOOKUP = Arrays.stream(GolemDropType.values())
             .collect(Collectors.toMap(d -> d.dropName().toLowerCase(), d -> d));

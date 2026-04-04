@@ -10,11 +10,12 @@
 - [Description](#description)
 - [Roadmap](#roadmap)
 
-<img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-tracker-hud.png?raw=true" width="368" height="190"></img>
+<img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/tracker.png?raw=true" width="368" height="190"></img>
 <br>
-<img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-tracker-and-countdown-hud.png?raw=true" width="412" height="276"></img>
+<img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/loot_quality.png?raw=true" width="291" height="190"></img>
 <br>
-<img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/golem-location.png?raw=true" width="600" height="500"></img>
+<img src="https://raw.githubusercontent.com/DevPieter/Divine-Golem/master/docs/images/damage_and_timing_breakdown.png?raw=true" width="319" height="190"></img>
+<br>
 
 ## Download
 

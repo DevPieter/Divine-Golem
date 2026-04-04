@@ -1,4 +1,4 @@
-package nl.devpieter.divine.models.fightBreakdown;
+package nl.devpieter.divine.models.fightBreakdown.details;
 
 public record TimingDetails(
         long fightAboutToStartRealTime,

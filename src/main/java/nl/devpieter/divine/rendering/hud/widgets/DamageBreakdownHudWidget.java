@@ -2,29 +2,29 @@ package nl.devpieter.divine.rendering.hud.widgets;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
 import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.models.fightBreakdown.DamageBreakdown;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
-import nl.devpieter.divine.utils.FormatUtils;
+import nl.devpieter.divine.rendering.text.IText;
+import nl.devpieter.divine.rendering.text.texts.TextLine;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DamagePerSecondHudWidget extends HudWidget {
+public class DamageBreakdownHudWidget extends HudWidget {
 
     private final MinecraftClient client = MinecraftClient.getInstance();
     private final GolemManager golemManager = GolemManager.getInstance();
 
     @Override
     public @NotNull String name() {
-        return "Damage Per Second";
+        return "Damage Breakdown";
     }
 
     @Override
     public @NotNull String identifier() {
-        return "damage_per_second";
+        return "damage_breakdown";
     }
 
     @Override
@@ -35,36 +35,37 @@ public class DamagePerSecondHudWidget extends HudWidget {
 
     @Override
     protected void renderWidget(DrawContext context) {
-        List<Text> lines = new ArrayList<>();
-
         DamageBreakdown breakdown = golemManager.currentFightBreakdown().calculateDamageBreakdown();
         if (breakdown == null) return;
 
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.real_dps", labelStyle, valueStyle, formatDecimal(breakdown.realDps())));
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, valueStyle, formatDecimal(breakdown.inGameDps())));
+        List<IText> lines = new ArrayList<>();
+//        lines.add(TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, formatDecimal(breakdown.realDps())));
+//        lines.add(TextLine.off("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, formatDecimal(breakdown.inGameDps())));
 
-        drawDynamicBox(context, 0, 0, backgroundColor, lines, client.textRenderer);
+        lines.add(TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, formatDecimal(breakdown.realDps())));
+
+        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, lines);
     }
 
     @Override
     protected void renderDummyWidget(DrawContext context) {
-        drawDynamicBox(context, 0, 0, backgroundColor, getDummyLines(), client.textRenderer);
+        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, getDummyLines());
     }
 
     @Override
     public int dummyWidth() {
-        return calculateBoxWidth(getDummyLines(), client.textRenderer);
+        return calculateBoxWidth(client.textRenderer, getDummyLines());
     }
 
     @Override
     public int dummyHeight() {
-        return calculateBoxHeight(getDummyLines(), client.textRenderer);
+        return calculateBoxHeight(client.textRenderer, getDummyLines());
     }
 
-    private List<Text> getDummyLines() {
+    private List<IText> getDummyLines() {
         return List.of(
-                FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.real_dps", labelStyle, valueStyle, "32.139,84"),
-                FormatUtils.formatTranslatable("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, valueStyle, "28.456,12")
+                TextLine.off("text.divine.widget.damage_per_second.real_dps", labelStyle, "4,006,828.38")
+//                TextLine.off("text.divine.widget.damage_per_second.tps_adjusted", labelStyle, "4,006,828.38")
         );
     }
 

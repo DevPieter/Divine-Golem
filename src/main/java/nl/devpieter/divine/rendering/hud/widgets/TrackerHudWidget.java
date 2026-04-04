@@ -7,8 +7,10 @@ import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.HypixelManager;
 import nl.devpieter.divine.enums.GolemLocation;
 import nl.devpieter.divine.enums.GolemStage;
+import nl.devpieter.divine.formatter.TextFormatUtils;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
-import nl.devpieter.divine.utils.FormatUtils;
+import nl.devpieter.divine.rendering.text.IText;
+import nl.devpieter.divine.rendering.text.texts.TextLine;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -40,37 +42,36 @@ public class TrackerHudWidget extends HudWidget {
 
     @Override
     protected void renderWidget(DrawContext context) {
-        List<Text> lines = new ArrayList<>();
+        List<IText> lines = new ArrayList<>();
+        lines.add(TextLine.off("text.divine.widget.tracker.stage", labelStyle, golemManager.getFormattedStageText()));
+        lines.add(TextLine.off("text.divine.widget.tracker.location", labelStyle, golemManager.getFormattedLocationText()));
 
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.tracker.stage", labelStyle, valueStyle, golemManager.getFormattedStageText()));
-        lines.add(FormatUtils.formatTranslatable("text.divine.widget.tracker.location", labelStyle, valueStyle, golemManager.getFormattedLocationText()));
-
-        drawDynamicBox(context, 0, 0, backgroundColor, getTitle(), lines, client.textRenderer);
+        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, getTitle(), lines);
     }
 
     @Override
     protected void renderDummyWidget(DrawContext context) {
-        drawDynamicBox(context, 0, 0, backgroundColor, getTitle(), getDummyLines(), client.textRenderer);
+        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, getTitle(), getDummyLines());
     }
 
     @Override
     public int dummyWidth() {
-        return calculateBoxWidth(getTitle(), getDummyLines(), client.textRenderer);
+        return calculateBoxWidth(client.textRenderer, getTitle(), getDummyLines());
     }
 
     @Override
     public int dummyHeight() {
-        return calculateBoxHeight(getTitle(), getDummyLines(), client.textRenderer);
+        return calculateBoxHeight(client.textRenderer, getTitle(), getDummyLines());
     }
 
     private Text getTitle() {
-        return FormatUtils.formatTranslatable("text.divine.widget.tracker.title", titleStyle, valueStyle);
+        return TextFormatUtils.format("text.divine.widget.tracker.title", titleStyle);
     }
 
-    private List<Text> getDummyLines() {
+    private List<IText> getDummyLines() {
         return List.of(
-                FormatUtils.formatTranslatable("text.divine.widget.tracker.stage", labelStyle, valueStyle, "Stage Name"),
-                FormatUtils.formatTranslatable("text.divine.widget.tracker.location", labelStyle, valueStyle, "Location Name")
+                TextLine.off("text.divine.widget.tracker.stage", labelStyle, "Stage Name"),
+                TextLine.off("text.divine.widget.tracker.location", labelStyle, "Location Name")
         );
     }
 }

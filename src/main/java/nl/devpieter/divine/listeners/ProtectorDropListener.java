@@ -30,17 +30,17 @@ public class ProtectorDropListener implements SListener {
     }
 
     private void notifyTest() {
-        Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
+        Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0x3be477)).withBold(true);
         setTitle(TextUtils.withStyle(Text.of("Crystal Fragment"), titleStyle));
     }
 
     private void notifyTierBoostCoreFound() {
-        Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
+        Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0x3be477)).withBold(true);
         setTitle(TextUtils.withStyle(Text.of("Tier Boost Core"), titleStyle));
     }
 
     private void notifyLegendaryGolemPetFound() {
-        Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xFFAA00)).withBold(true);
+        Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0x3be477)).withBold(true);
         setTitle(TextUtils.withStyle(Text.of("Legendary Golem Pet"), titleStyle));
     }
 

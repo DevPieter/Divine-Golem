@@ -9,10 +9,10 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import nl.devpieter.divine.config.Settings;
 import nl.devpieter.divine.config.setting.ClampedIntSetting;
+import nl.devpieter.divine.formatter.TextFormatUtils;
 import nl.devpieter.divine.rendering.hud.HudManager;
 import nl.devpieter.divine.rendering.hud.models.ScreenPosition;
 import nl.devpieter.divine.rendering.hud.widget.IHudWidget;
-import nl.devpieter.divine.utils.FormatUtils;
 import nl.devpieter.utilize.setting.settings.BooleanSetting;
 import org.lwjgl.glfw.GLFW;
 
@@ -26,14 +26,14 @@ public class HudEditScreen extends Screen {
     private final Style instructionsStyle = Style.EMPTY.withColor(0x8f8f8f).withItalic(true);
     private final Style highlightStyle = Style.EMPTY.withColor(0xff3be477).withBold(true);
 
-    private final Text hintText = FormatUtils.formatTranslatable("text.divine.hud_editor.hint_show_instructions", instructionsStyle, highlightStyle);
+    private final Text hintText = TextFormatUtils.format("text.divine.hud_editor.hint_show_instructions", instructionsStyle);
 
     private final List<Text> instructionsText = List.of(
-            FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.reposition", instructionsStyle, highlightStyle),
-            FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.toggle", instructionsStyle, highlightStyle),
-            FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.reset", instructionsStyle, highlightStyle),
-            FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.grid_size", instructionsStyle, highlightStyle),
-            FormatUtils.formatTranslatable("text.divine.hud_editor.instruction.disable_grid", instructionsStyle, highlightStyle)
+            TextFormatUtils.format("text.divine.hud_editor.instruction.reposition", instructionsStyle),
+            TextFormatUtils.format("text.divine.hud_editor.instruction.toggle", instructionsStyle),
+            TextFormatUtils.format("text.divine.hud_editor.instruction.reset", instructionsStyle),
+            TextFormatUtils.format("text.divine.hud_editor.instruction.grid_size", instructionsStyle),
+            TextFormatUtils.format("text.divine.hud_editor.instruction.disable_grid", instructionsStyle)
     );
 
     private final ClampedIntSetting gridSize = new ClampedIntSetting(
@@ -78,7 +78,7 @@ public class HudEditScreen extends Screen {
         }
 
         if (isControlPressed() && snapToGrid.getValue()) {
-            MutableText gridSizeText = FormatUtils.formatTranslatable("text.divine.hud_editor.current_grid_size", instructionsStyle, highlightStyle, String.valueOf(gridSize.getValue()));
+            MutableText gridSizeText = TextFormatUtils.format("text.divine.hud_editor.current_grid_size", instructionsStyle, String.valueOf(gridSize.getValue()));
             context.drawCenteredTextWithShadow(client.textRenderer, gridSizeText, width / 2, height / 2 - textRenderer.fontHeight / 2, 0xFFFFFFFF);
         }
 

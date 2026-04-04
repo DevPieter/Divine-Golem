@@ -1,5 +1,7 @@
 package nl.devpieter.divine.models.fightBreakdown;
 
+import nl.devpieter.divine.models.fightBreakdown.details.*;
+import nl.devpieter.divine.utils.TimeUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ public class ProtectorFightBreakdown {
 
     private DamageBreakdown cachedDamageBreakdown = null;
     private LootQualityBreakdown cachedLootQualityBreakdown = null;
+    private TimingBreakdown cachedTimingBreakdown = null;
 
     public ProtectorFightBreakdown(boolean hasWitnessedFightStart, TimingDetails timingDetails) {
         this.hasWitnessedFightStart = hasWitnessedFightStart;
@@ -78,14 +81,16 @@ public class ProtectorFightBreakdown {
         MyDamageDetails mDamage = myDamage();
         if (timing == null || mDamage == null) return null;
 
-        long durationRealSeconds = Math.max((timing.fightEndRealTime() - timing.fightStartRealTime()) / 1000, 1);
-        long durationInGameSeconds = Math.max((timing.fightEndInGameTime() - timing.fightStartInGameTime()) / 20, 1);
+        long durationRealSeconds = TimeUtils.msToDurationSeconds(timing.fightStartRealTime(), timing.fightEndRealTime());
+        long durationInGameSeconds = TimeUtils.ticksToDurationSeconds(timing.fightStartInGameTime(), timing.fightEndInGameTime());
 
-        double realDps = (double) mDamage.damage() / durationRealSeconds;
-        double inGameDps = (double) mDamage.damage() / durationInGameSeconds;
+        double realDps = -1;
+        if (durationRealSeconds > 0) realDps = (double) mDamage.damage() / durationRealSeconds;
+
+        double inGameDps = -1;
+        if (durationInGameSeconds > 0) inGameDps = (double) mDamage.damage() / durationInGameSeconds;
 
         DamageBreakdown breakdown = new DamageBreakdown(mDamage, realDps, inGameDps);
-
         cachedDamageBreakdown = breakdown;
         return breakdown;
     }
@@ -131,6 +136,24 @@ public class ProtectorFightBreakdown {
         );
 
         cachedLootQualityBreakdown = breakdown;
+        return breakdown;
+    }
+
+    public @Nullable TimingBreakdown calculateTimingBreakdown() {
+        if (cachedTimingBreakdown != null) return cachedTimingBreakdown;
+        if (!hasWitnessedFightStart()) return null;
+
+        TimingDetails timing = timingDetails();
+        if (timing == null) return null;
+
+        TimingBreakdown breakdown = new TimingBreakdown(
+                TimeUtils.msToDurationMillis(timing.fightStartRealTime(), timing.fightEndRealTime()),
+                TimeUtils.ticksToDurationMillis(timing.fightStartInGameTime(), timing.fightEndInGameTime()),
+                TimeUtils.msToDurationMillis(timing.fightAboutToStartRealTime(), timing.fightStartRealTime()),
+                TimeUtils.ticksToDurationMillis(timing.fightAboutToStartInGameTime(), timing.fightStartInGameTime())
+        );
+
+        cachedTimingBreakdown = breakdown;
         return breakdown;
     }
 }
