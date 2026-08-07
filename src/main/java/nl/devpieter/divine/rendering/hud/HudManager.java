@@ -1,6 +1,6 @@
 package nl.devpieter.divine.rendering.hud;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import nl.devpieter.divine.config.Settings;
 import nl.devpieter.divine.config.setting.WidgetOptionsSetting;
 import nl.devpieter.divine.rendering.hud.models.ScreenPosition;
@@ -17,7 +17,7 @@ public class HudManager {
 
     private static final HudManager INSTANCE = new HudManager();
 
-    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final Minecraft client = Minecraft.getInstance();
     private final Settings settings = Settings.getInstance();
 
     private final List<IHudWidget> widgets = new ArrayList<>();
@@ -95,7 +95,7 @@ public class HudManager {
     }
 
     public void openEditScreen() {
-        client.setScreen(new HudEditScreen());
+        client.gui.setScreen(new HudEditScreen());
     }
 
     public void save() {
@@ -103,6 +103,6 @@ public class HudManager {
     }
 
     public boolean shouldRender() {
-        return !(client.currentScreen instanceof HudEditScreen);
+        return !(client.gui.screen() instanceof HudEditScreen);
     }
 }

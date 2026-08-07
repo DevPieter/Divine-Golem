@@ -1,6 +1,6 @@
 package nl.devpieter.divine.utils;
 
-import nl.devpieter.utilize.utils.minecraft.ClientUtils;
+import nl.devpieter.utilize.client.utils.ClientUtils;
 
 public class WorldUtils {
 
@@ -8,7 +8,7 @@ public class WorldUtils {
     }
 
     public static long getWorldTime() {
-        if (ClientUtils.getWorld() == null) return -1;
-        return ClientUtils.getWorld().getLevelProperties().getTime();
+        if (!ClientUtils.hasLevel()) return -1;
+        return ClientUtils.getLevel().getGameTime();
     }
 }

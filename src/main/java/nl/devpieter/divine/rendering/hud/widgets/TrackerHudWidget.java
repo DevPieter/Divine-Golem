@@ -1,8 +1,8 @@
 package nl.devpieter.divine.rendering.hud.widgets;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.HypixelManager;
 import nl.devpieter.divine.enums.GolemLocation;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class TrackerHudWidget extends HudWidget {
 
-    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final Minecraft client = Minecraft.getInstance();
 
     private final GolemManager golemManager = GolemManager.getInstance();
     private final HypixelManager hypixelManager = HypixelManager.getInstance();
@@ -41,30 +41,30 @@ public class TrackerHudWidget extends HudWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context) {
+    protected void renderWidget(GuiGraphicsExtractor graphics) {
         List<IText> lines = new ArrayList<>();
         lines.add(TextLine.off("text.divine.widget.tracker.stage", labelStyle, golemManager.getFormattedStageText()));
         lines.add(TextLine.off("text.divine.widget.tracker.location", labelStyle, golemManager.getFormattedLocationText()));
 
-        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, getTitle(), lines);
+        drawDynamicBox(graphics, client.font, 0, 0, backgroundColor, getTitle(), lines);
     }
 
     @Override
-    protected void renderDummyWidget(DrawContext context) {
-        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, getTitle(), getDummyLines());
+    protected void renderDummyWidget(GuiGraphicsExtractor graphics) {
+        drawDynamicBox(graphics, client.font, 0, 0, backgroundColor, getTitle(), getDummyLines());
     }
 
     @Override
     public int dummyWidth() {
-        return calculateBoxWidth(client.textRenderer, getTitle(), getDummyLines());
+        return calculateBoxWidth(client.font, getTitle(), getDummyLines());
     }
 
     @Override
     public int dummyHeight() {
-        return calculateBoxHeight(client.textRenderer, getTitle(), getDummyLines());
+        return calculateBoxHeight(client.font, getTitle(), getDummyLines());
     }
 
-    private Text getTitle() {
+    private Component getTitle() {
         return TextFormatUtils.format("text.divine.widget.tracker.title", titleStyle);
     }
 

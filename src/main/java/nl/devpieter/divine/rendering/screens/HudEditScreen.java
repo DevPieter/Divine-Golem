@@ -1,19 +1,16 @@
 package nl.devpieter.divine.rendering.screens;
 
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import nl.devpieter.divine.config.Settings;
 import nl.devpieter.divine.config.setting.ClampedIntSetting;
 import nl.devpieter.divine.formatter.TextFormatUtils;
 import nl.devpieter.divine.rendering.hud.HudManager;
 import nl.devpieter.divine.rendering.hud.models.ScreenPosition;
 import nl.devpieter.divine.rendering.hud.widget.IHudWidget;
-import nl.devpieter.utilize.setting.settings.BooleanSetting;
+import nl.devpieter.utilize.client.setting.settings.BooleanSetting;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -26,9 +23,9 @@ public class HudEditScreen extends Screen {
     private final Style instructionsStyle = Style.EMPTY.withColor(0x8f8f8f).withItalic(true);
     private final Style highlightStyle = Style.EMPTY.withColor(0xff3be477).withBold(true);
 
-    private final Text hintText = TextFormatUtils.format("text.divine.hud_editor.hint_show_instructions", instructionsStyle);
+    private final Component hintText = TextFormatUtils.format("text.divine.hud_editor.hint_show_instructions", instructionsStyle);
 
-    private final List<Text> instructionsText = List.of(
+    private final List<Component> instructionsText = List.of(
             TextFormatUtils.format("text.divine.hud_editor.instruction.reposition", instructionsStyle),
             TextFormatUtils.format("text.divine.hud_editor.instruction.toggle", instructionsStyle),
             TextFormatUtils.format("text.divine.hud_editor.instruction.reset", instructionsStyle),
@@ -53,165 +50,13 @@ public class HudEditScreen extends Screen {
     private float dragOffsetY = 0;
 
     public HudEditScreen() {
-        super(Text.translatable("text.divine.hud_editor.title"));
+        super(Component.translatable("text.divine.hud_editor.title"));
         settings.load(gridSize);
         settings.load(snapToGrid);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-        if (snapToGrid.getValue()) renderGrid(context);
-
-        IHudWidget hoveredWidget = hudManager.getWidgetByPosition(mouseX, mouseY);
-
-        for (IHudWidget widget : hudManager.widgets()) {
-            boolean isEnabled = hudManager.isWidgetEnabled(widget.identifier());
-            widget.renderDummy(context, !isEnabled);
-        }
-
-        if (draggingWidget != null) {
-            boolean isEnabled = hudManager.isWidgetEnabled(draggingWidget.identifier());
-            draggingWidget.renderDummyHighlighted(context, !isEnabled);
-        } else if (hoveredWidget != null) {
-            boolean isEnabled = hudManager.isWidgetEnabled(hoveredWidget.identifier());
-            hoveredWidget.renderDummyHighlighted(context, !isEnabled);
-        }
-
-        if (isControlPressed() && snapToGrid.getValue()) {
-            MutableText gridSizeText = TextFormatUtils.format("text.divine.hud_editor.current_grid_size", instructionsStyle, String.valueOf(gridSize.getValue()));
-            context.drawCenteredTextWithShadow(client.textRenderer, gridSizeText, width / 2, height / 2 - textRenderer.fontHeight / 2, 0xFFFFFFFF);
-        }
-
-        if (isSpacePressed()) {
-            int yOffset = height - 20 - (instructionsText.size() - 1) * (textRenderer.fontHeight + 5);
-
-            for (Text line : instructionsText) {
-                context.drawCenteredTextWithShadow(client.textRenderer, line, width / 2, yOffset, 0xFFFFFFFF);
-                yOffset += textRenderer.fontHeight + 5;
-            }
-        } else {
-            context.drawCenteredTextWithShadow(client.textRenderer, hintText, width / 2, height - 20, 0xFFFFFFFF);
-        }
-    }
-
-    @Override
-    public void mouseMoved(double mouseX, double mouseY) {
-        if (draggingWidget == null) return;
-
-        float newX = (float) (mouseX - dragOffsetX);
-        float newY = (float) (mouseY - dragOffsetY);
-
-        if (snapToGrid.getValue()) {
-            int size = gridSize.getValue();
-            newX = Math.round(newX / size) * size;
-            newY = Math.round(newY / size) * size;
-        }
-
-        newX = Math.max(0, Math.min(newX, width - draggingWidget.dummyWidth()));
-        newY = Math.max(0, Math.min(newY, height - draggingWidget.dummyHeight()));
-
-        hudManager.setWidgetPosition(draggingWidget.identifier(), newX, newY);
-    }
-
-    @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        float x = (float) click.x();
-        float y = (float) click.y();
-
-        IHudWidget widget = hudManager.getWidgetByPosition(x, y);
-        if (widget == null) return super.mouseClicked(click, doubled);
-
-        if (click.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-            ScreenPosition pos = hudManager.getWidgetPosition(widget.identifier());
-            if (pos == null) return super.mouseClicked(click, doubled);
-
-            draggingWidget = widget;
-            dragOffsetX = x - pos.x();
-            dragOffsetY = y - pos.y();
-        } else if (click.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && isShiftPressed()) {
-            hudManager.resetWidgetPosition(widget.identifier());
-        } else if (click.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-            hudManager.toggleWidgetEnabled(widget.identifier());
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean mouseReleased(Click click) {
-        draggingWidget = null;
-        return super.mouseReleased(click);
-    }
-
-    @Override
-    public boolean keyReleased(KeyInput input) {
-        int key = input.key();
-
-        if (key == GLFW.GLFW_KEY_S) {
-            snapToGrid.toggle();
-            return true;
-        }
-
-        if (!isControlPressed() || !snapToGrid.getValue()) return super.keyReleased(input);
-
-        if (key == GLFW.GLFW_KEY_KP_ADD || key == GLFW.GLFW_KEY_EQUAL) {
-            gridSize.increment();
-            return true;
-        } else if (key == GLFW.GLFW_KEY_KP_SUBTRACT || key == GLFW.GLFW_KEY_MINUS) {
-            gridSize.decrement();
-            return true;
-        }
-
-        return super.keyReleased(input);
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        if (!isControlPressed() || !snapToGrid.getValue())
-            return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-
-        if (verticalAmount != 0) {
-            if (verticalAmount > 0) gridSize.increment();
-            else gridSize.decrement();
-            return true;
-        }
-
-        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-    }
-
-    @Override
-    public void close() {
-        super.close();
-
-        settings.save(gridSize);
-        settings.save(snapToGrid);
-        hudManager.save();
-    }
-
-    @Override
-    public boolean shouldPause() {
-        return false;
-    }
-
-    private void renderGrid(DrawContext context) {
-        int size = gridSize.getValue();
-
-        for (int x = 0; x < width; x += size) context.fill(x, 0, x + 1, height, 0x30DCDCDC);
-        for (int y = 0; y < height; y += size) context.fill(0, y, width, y + 1, 0x30DCDCDC);
-    }
-
-    private boolean isShiftPressed() {
-        long handle = client.getWindow().getHandle();
-        return GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS;
-    }
-
-    private boolean isControlPressed() {
-        long handle = client.getWindow().getHandle();
-        return GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
-    }
-
-    private boolean isSpacePressed() {
-        long handle = client.getWindow().getHandle();
-        return GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_SPACE) == GLFW.GLFW_PRESS;
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractRenderState(graphics, mouseX, mouseY, a);
     }
 }

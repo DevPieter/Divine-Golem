@@ -1,11 +1,11 @@
 package nl.devpieter.divine;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.Identifier;
 import nl.devpieter.divine.enums.Rarity;
 import nl.devpieter.divine.formatter.TextFormatRegistry;
 import nl.devpieter.divine.formatter.formats.StyleFormatter;
@@ -14,17 +14,17 @@ import nl.devpieter.divine.rendering.hud.HudManager;
 import nl.devpieter.divine.rendering.hud.models.WidgetOptions;
 import nl.devpieter.divine.rendering.hud.widgets.*;
 import nl.devpieter.sees.Sees;
+import nl.devpieter.utilize.client.utils.ClientUtils;
 import nl.devpieter.utilize.managers.PacketManager;
-import nl.devpieter.utilize.utils.minecraft.ClientUtils;
 import org.lwjgl.glfw.GLFW;
 
 public class Divine implements ClientModInitializer {
 
-    private final KeyBinding.Category category = new KeyBinding.Category(Identifier.of("divine", "main"));
+    private final KeyMapping.Category category = new KeyMapping.Category(Identifier.fromNamespaceAndPath("divine", "main"));
 
-    private final KeyBinding editHudKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+    private final KeyMapping editHudKeyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.divine.open_hud_editor",
-            InputUtil.Type.KEYSYM,
+            InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_H,
             category
     ));
@@ -35,7 +35,7 @@ public class Divine implements ClientModInitializer {
         sees.subscribe(HypixelManager.getInstance());
         sees.subscribe(GolemManager.getInstance());
 
-        if (ClientUtils.isDevEnv()) sees.subscribe(new DebugListener());
+        sees.subscribe(new DebugListener());
         sees.subscribe(new ProtectorDropListener());
         sees.subscribe(new ProtectorFightListener());
 
@@ -61,7 +61,7 @@ public class Divine implements ClientModInitializer {
         formatRegistry.register(new StyleFormatter("r:legendary", Rarity.LEGENDARY.color()));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (editHudKeyBinding.wasPressed()) hudManager.openEditScreen();
+            if (editHudKeyBinding.consumeClick()) hudManager.openEditScreen();
         });
     }
 }

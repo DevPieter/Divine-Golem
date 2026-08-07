@@ -1,7 +1,7 @@
 package nl.devpieter.divine.rendering.hud.widgets;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
 import nl.devpieter.divine.rendering.text.IText;
@@ -17,7 +17,7 @@ public class CountdownHudWidget extends HudWidget {
 
     private static final long DIFFERENCE_DISPLAY_DURATION = 2_000;
 
-    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final Minecraft client = Minecraft.getInstance();
     private final GolemManager golemManager = GolemManager.getInstance();
 
     private boolean isShowingDifference = false;
@@ -39,28 +39,28 @@ public class CountdownHudWidget extends HudWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context) {
+    protected void renderWidget(GuiGraphicsExtractor graphics) {
         List<IText> lines = new ArrayList<>();
         lines.add(TextLine.off("text.divine.widget.countdown.spawns_in", labelStyle, getFormattedRealTime()));
         lines.add(TextLine.off("text.divine.widget.countdown.tps_adjusted", labelStyle, getFormattedInGameTime()));
 
         lines.addAll(getOptionalDifferenceLines());
-        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, lines);
+        drawDynamicBox(graphics, client.font, 0, 0, backgroundColor, lines);
     }
 
     @Override
-    protected void renderDummyWidget(DrawContext context) {
-        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, getDummyLines());
+    protected void renderDummyWidget(GuiGraphicsExtractor graphics) {
+        drawDynamicBox(graphics, client.font, 0, 0, backgroundColor, getDummyLines());
     }
 
     @Override
     public int dummyWidth() {
-        return calculateBoxWidth(client.textRenderer, getDummyLines());
+        return calculateBoxWidth(client.font, getDummyLines());
     }
 
     @Override
     public int dummyHeight() {
-        return calculateBoxHeight(client.textRenderer, getDummyLines());
+        return calculateBoxHeight(client.font, getDummyLines());
     }
 
     private List<IText> getDummyLines() {

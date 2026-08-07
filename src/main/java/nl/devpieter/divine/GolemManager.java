@@ -1,15 +1,15 @@
 package nl.devpieter.divine;
 
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import nl.devpieter.divine.enums.GolemLocation;
 import nl.devpieter.divine.enums.GolemStage;
 import nl.devpieter.divine.events.PlayerListUpdateEvent;
 import nl.devpieter.divine.events.skyblock.SkyblockLocationUpdateEvent;
 import nl.devpieter.divine.events.skyblock.protector.*;
 import nl.devpieter.divine.models.GolemDrop;
-import nl.devpieter.divine.models.fightBreakdown.*;
+import nl.devpieter.divine.models.fightBreakdown.ProtectorFightBreakdown;
 import nl.devpieter.divine.models.fightBreakdown.details.*;
 import nl.devpieter.divine.utils.GolemUtils;
 import nl.devpieter.divine.utils.RegexUtils;
@@ -17,10 +17,11 @@ import nl.devpieter.divine.utils.WorldUtils;
 import nl.devpieter.sees.Sees;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
-import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
-import nl.devpieter.utilize.task.TaskManager;
-import nl.devpieter.utilize.task.tasks.RunLaterTask;
-import nl.devpieter.utilize.utils.minecraft.PlayerUtils;
+import nl.devpieter.utilize.client.events.chat.ChatMessageAddEvent;
+import nl.devpieter.utilize.client.task.TaskManager;
+import nl.devpieter.utilize.client.task.enums.TickPhase;
+import nl.devpieter.utilize.client.task.tasks.RunLaterTask;
+import nl.devpieter.utilize.client.utils.PlayerUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -192,7 +193,7 @@ public class GolemManager implements SListener {
     }
 
     @SEventListener
-    private void onReceiveMessage(ReceiveMessageEvent event) {
+    private void onChatMessageAdd(ChatMessageAddEvent event) {
         if (!hypixelManager.isInTheEnd()) return;
 
         String message = event.message().getString().trim();
@@ -228,8 +229,8 @@ public class GolemManager implements SListener {
             sees.dispatch(new ProtectorFightEndEvent(false, hasWitnessedFightStart));
 
             if (fightLocation == GolemLocation.UNDEFINED) {
-                Text warningMessage = Text.literal("Couldn't determine fight location, unable to scan for drops!").formatted(Formatting.RED);
-                PlayerUtils.sendMessage(warningMessage, false);
+                Component warningMessage = Component.literal("Couldn't determine fight location, unable to scan for drops!").withColor(TextColor.RED);
+                PlayerUtils.sendSystemMessage(warningMessage);
             } else startDropScan();
 
             startBreakdownMatching();
@@ -239,7 +240,7 @@ public class GolemManager implements SListener {
             if (System.currentTimeMillis() - fightBreakdownMatchingStartTime > 10000) {
                 cancelBreakdownMatching();
 
-                Text warningMessage = Text.literal("Couldn't parse fight breakdown in time!").formatted(Formatting.RED);
+                Component warningMessage = Component.literal("Couldn't parse fight breakdown in time!").withColor(TextColor.RED);
                 PlayerUtils.sendMessage(warningMessage, false);
             } else matchFightBreakdownMessage(message);
         }
@@ -249,8 +250,8 @@ public class GolemManager implements SListener {
     private void onPlayerListUpdate(PlayerListUpdateEvent event) {
         if (!hypixelManager.isInTheEnd()) return;
 
-        List<Text> displayNames = event.entries().stream()
-                .map(PlayerListS2CPacket.Entry::displayName)
+        List<Component> displayNames = event.entries().stream()
+                .map(ClientboundPlayerInfoUpdatePacket.Entry::displayName)
                 .filter(Objects::nonNull)
                 .toList();
 
@@ -329,7 +330,7 @@ public class GolemManager implements SListener {
 
             taskManager.addTask(new RunLaterTask(() -> {
                 if (scanningForLocation) performLocationScan();
-            }, 10), TaskManager.TickPhase.PLAYER_TAIL);
+            }, 10), TickPhase.PLAYER_TAIL);
 
             return;
         }
@@ -361,7 +362,7 @@ public class GolemManager implements SListener {
 
             taskManager.addTask(new RunLaterTask(() -> {
                 if (scanningForDrops) performDropScan();
-            }, 10), TaskManager.TickPhase.PLAYER_TAIL);
+            }, 10), TickPhase.PLAYER_TAIL);
 
             return;
         }

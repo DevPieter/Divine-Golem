@@ -2,7 +2,7 @@ package nl.devpieter.divine.config.setting;
 
 import com.google.common.reflect.TypeToken;
 import nl.devpieter.divine.rendering.hud.models.WidgetOptions;
-import nl.devpieter.utilize.setting.interfaces.ISetting;
+import nl.devpieter.utilize.client.setting.interfaces.ISetting;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
