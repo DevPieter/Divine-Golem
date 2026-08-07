@@ -71,6 +71,9 @@ public class LootQualityHudWidget extends HudWidget {
 
     @Override
     protected void renderDummyWidget(GuiGraphicsExtractor graphics) {
+        if (tierBoostCoreStack == null) tierBoostCoreStack = new ItemStack(Items.DYE.red());
+        if (golemPetStack == null) golemPetStack = new ItemStack(Items.SKELETON_SKULL);
+
         drawDynamicBox(graphics, client.font, 0, 0, backgroundColor, getDummyLines());
     }
 
