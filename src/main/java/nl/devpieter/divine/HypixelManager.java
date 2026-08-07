@@ -7,10 +7,11 @@ import nl.devpieter.divine.utils.HypixelUtils;
 import nl.devpieter.sees.Sees;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
-import nl.devpieter.utilize.events.chat.ReceiveMessageEvent;
-import nl.devpieter.utilize.task.TaskManager;
-import nl.devpieter.utilize.task.tasks.RunLaterTask;
-import nl.devpieter.utilize.utils.minecraft.NetworkUtils;
+import nl.devpieter.utilize.client.events.chat.ChatMessageAddEvent;
+import nl.devpieter.utilize.client.task.TaskManager;
+import nl.devpieter.utilize.client.task.enums.TickPhase;
+import nl.devpieter.utilize.client.task.tasks.RunLaterTask;
+import nl.devpieter.utilize.client.utils.NetworkUtils;
 import org.jetbrains.annotations.Nullable;
 
 public class HypixelManager implements SListener {
@@ -57,7 +58,7 @@ public class HypixelManager implements SListener {
     }
 
     @SEventListener
-    private void onReceiveMessage(ReceiveMessageEvent event) {
+    private void onChatMessageAdd(ChatMessageAddEvent event) {
         if (!isOnHypixel || hasReceivedLocRaw) return;
 
         String message = event.message().getString();
@@ -121,6 +122,6 @@ public class HypixelManager implements SListener {
 
         TaskManager.getInstance().addTask(new RunLaterTask(() -> {
             if (requestingLocRaw && !hasReceivedLocRaw) requestLocRaw();
-        }, delay), TaskManager.TickPhase.PLAYER_TAIL);
+        }, delay), TickPhase.PLAYER_TAIL);
     }
 }

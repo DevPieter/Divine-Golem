@@ -2,9 +2,9 @@ package nl.devpieter.divine.config;
 
 import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
-import nl.devpieter.utilize.setting.SettingManager;
-import nl.devpieter.utilize.setting.interfaces.ISetting;
-import nl.devpieter.utilize.utils.common.FileUtils;
+import nl.devpieter.utilize.client.setting.SettingManager;
+import nl.devpieter.utilize.client.setting.interfaces.ISetting;
+import nl.devpieter.utilize.utils.FileUtils;
 
 import java.io.File;
 

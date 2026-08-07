@@ -1,12 +1,12 @@
 package nl.devpieter.divine.utils;
 
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.text.Style;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import nl.devpieter.divine.enums.Rarity;
-import nl.devpieter.utilize.utils.minecraft.ClientUtils;
+import nl.devpieter.utilize.client.utils.ClientUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,13 +18,13 @@ public class SkyblockUtils {
     private SkyblockUtils() {
     }
 
-    public static @NotNull List<? extends ArmorStandEntity> getNearbyArmorStandsWithCustomName(@NotNull BlockPos center, float distance) {
-        if (!ClientUtils.hasWorld()) return new ArrayList<>();
+    public static @NotNull List<? extends ArmorStand> getNearbyArmorStandsWithCustomName(@NotNull BlockPos center, float distance) {
+        if (!ClientUtils.hasLevel()) return new ArrayList<>();
 
-        World world = ClientUtils.getWorld();
-        Box searchBox = new Box(center).expand(distance);
+        Level level = ClientUtils.getLevel();
+        AABB searchBox = new AABB(center).inflate(distance);
 
-        return world.getEntitiesByClass(ArmorStandEntity.class, searchBox, entity -> {
+        return level.getEntitiesOfClass(ArmorStand.class, searchBox, entity -> {
             if (entity.isRemoved()) return false;
             return entity.hasCustomName();
         });
@@ -33,9 +33,7 @@ public class SkyblockUtils {
     public static @NotNull Rarity rarityFromStyle(@Nullable Style style) {
         if (style == null || style.getColor() == null) return Rarity.UNKNOWN;
 
-        String name = style.getColor().getName();
-        if (name == null) return Rarity.UNKNOWN;
-
+        String name = style.getColor().serialize();
         return Rarity.COLOR_RARITY_LOOKUP.getOrDefault(name.toLowerCase(), Rarity.UNKNOWN);
     }
 }

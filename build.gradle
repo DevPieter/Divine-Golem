@@ -1,16 +1,25 @@
 plugins {
-    id 'fabric-loom'
+    id 'net.fabricmc.fabric-loom'
     id 'com.replaymod.preprocess'
     id 'maven-publish'
 }
 
-def targetJavaVersion = 21
-
-group = maven_group
+group = project.maven_group
 version = "${mod_version}+${minecraft_version}-${max_minecraft_version}"
 
 base {
-    archivesName = archives_base_name
+    archivesName = project.archives_base_name
+}
+
+loom {
+    // splitEnvironmentSourceSets()
+
+    mods {
+        "divine" {
+            sourceSet sourceSets.main
+            // sourceSet sourceSets.client
+        }
+    }
 }
 
 repositories {
@@ -18,17 +27,20 @@ repositories {
         name "Pietr Space Releases"
         url "https://maven.pietr.space/releases"
     }
+    maven {
+        name = "pietrSpaceSnapshots"
+        url = uri("https://maven.pietr.space/snapshots")
+    }
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     implementation "nl.devpieter:sees:1.2.1"
-    modImplementation "nl.devpieter:utilize:1.1.1+1.21.9-1.21.11"
+    implementation "nl.devpieter:utilize:2.0.1+26.1-26.2"
 
     implementation "net.harawata:appdirs:1.5.0"
     include "net.harawata:appdirs:1.5.0"
@@ -54,17 +66,32 @@ processResources {
     }
 }
 
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = "UTF-8"
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    // If Javadoc is generated, this must be specified in that task too.
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release.set(targetJavaVersion)
+    }
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
 }
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${base.archivesName.get()}" }
+        rename { "${it}_${project.archives_base_name}" }
     }
 }
 

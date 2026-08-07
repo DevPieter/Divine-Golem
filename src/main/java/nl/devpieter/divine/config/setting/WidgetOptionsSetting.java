@@ -1,7 +1,7 @@
 package nl.devpieter.divine.config.setting;
 
 import nl.devpieter.divine.rendering.hud.models.WidgetOptions;
-import nl.devpieter.utilize.setting.base.SettingBase;
+import nl.devpieter.utilize.client.setting.base.SettingBase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

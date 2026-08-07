@@ -1,21 +1,21 @@
 package nl.devpieter.divine.rendering.text;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 public interface IText {
 
-    Text text();
+    Component text();
 
-    void render(@NotNull DrawContext context, @NotNull TextRenderer textRenderer, int x, int y);
+    void render(@NotNull GuiGraphicsExtractor graphics, @NotNull Font font, int x, int y);
 
-    default int width(@NotNull TextRenderer textRenderer) {
-        return textRenderer.getWidth(text());
+    default int width(@NotNull Font font) {
+        return font.width(text());
     }
 
-    default int height(@NotNull TextRenderer textRenderer) {
-        return textRenderer.fontHeight;
+    default int height(@NotNull Font font) {
+        return font.lineHeight;
     }
 }

@@ -1,16 +1,16 @@
 package nl.devpieter.divine.utils;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import nl.devpieter.divine.enums.GolemDropType;
 import nl.devpieter.divine.enums.GolemLocation;
 import nl.devpieter.divine.enums.GolemStage;
 import nl.devpieter.divine.enums.Rarity;
 import nl.devpieter.divine.models.GolemDrop;
-import nl.devpieter.utilize.utils.minecraft.WorldUtils;
+import nl.devpieter.utilize.client.utils.WorldUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,8 +25,8 @@ public class GolemUtils {
     private GolemUtils() {
     }
 
-    public static @Nullable GolemStage getCurrentStage(@NotNull List<Text> playerListDisplayNames) {
-        for (Text displayName : playerListDisplayNames) {
+    public static @Nullable GolemStage getCurrentStage(@NotNull List<Component> playerListDisplayNames) {
+        for (Component displayName : playerListDisplayNames) {
             if (displayName == null) continue;
 
             String stageKey = RegexUtils.findFirstGroup(PROTECTOR_PATTERN, displayName.getString());
@@ -61,25 +61,25 @@ public class GolemUtils {
     // empty[style={!italic}, siblings=[literal{Enchanted End Stone }[style={color=green}], literal{x10}[style={color=dark_gray}]]]
 
     public static @NotNull List<GolemDrop> findDrops(GolemLocation location) {
-        List<? extends ArmorStandEntity> armorStands = SkyblockUtils.getNearbyArmorStandsWithCustomName(location.headPosMin(), 8);
+        List<? extends ArmorStand> armorStands = SkyblockUtils.getNearbyArmorStandsWithCustomName(location.headPosMin(), 8);
         if (armorStands.isEmpty()) return new ArrayList<>();
 
         List<GolemDrop> drops = new ArrayList<>();
 
-        for (ArmorStandEntity armorStand : armorStands) {
-            Text name = armorStand.getCustomName();
+        for (ArmorStand armorStand : armorStands) {
+            Component name = armorStand.getCustomName();
             if (name == null) continue;
 
-            List<Text> siblings = name.getSiblings();
+            List<Component> siblings = name.getSiblings();
             if (siblings.isEmpty()) continue;
 
-            Text firstSibling = siblings.getFirst();
+            Component firstSibling = siblings.getFirst();
             if (firstSibling == null) continue;
 
             GolemDropType dropType = dropTypeFromName(firstSibling.getString().trim());
             if (dropType == null) continue;
 
-            Text secondSibling = siblings.size() < 2 ? null : siblings.get(1);
+            Component secondSibling = siblings.size() < 2 ? null : siblings.get(1);
 
             String quantityStr = secondSibling == null ? null : secondSibling.getString().trim();
             int quantity = dropQuantityFromString(quantityStr);

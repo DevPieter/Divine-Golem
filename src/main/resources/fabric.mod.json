@@ -21,12 +21,15 @@
     ]
   },
   "mixins": [
-    "divine.mixins.json"
+    {
+      "config": "divine.mixins.json",
+      "environment": "client"
+    }
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
     "minecraft": ">=${minecraft_version} <=${max_minecraft_version}",
-    "utilize": ">=1.1.1 <1.2.0"
+    "utilize": ">=2.0.1 <2.1.0"
   }
 }

@@ -1,22 +1,22 @@
 package nl.devpieter.divine.rendering.text.texts;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.ItemStack;
 import nl.devpieter.divine.formatter.TextFormatUtils;
 import nl.devpieter.divine.rendering.text.IText;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemStackText implements IText {
 
-    public static ItemStackText of(ItemStack stack, Text text) {
+    public static ItemStackText of(ItemStack stack, Component text) {
         return new ItemStackText(stack, text);
     }
 
     public static ItemStackText of(ItemStack stack, String text) {
-        return new ItemStackText(stack, Text.of(text));
+        return new ItemStackText(stack, Component.literal(text));
     }
 
     public static ItemStackText off(ItemStack stack, String key, Style style, Object... args) {
@@ -24,12 +24,12 @@ public class ItemStackText implements IText {
     }
 
     private final ItemStack stack;
-    private final Text text;
+    private final Component text;
 
     private int xPadding;
     private int yPadding;
 
-    public ItemStackText(ItemStack stack, Text text) {
+    public ItemStackText(ItemStack stack, Component text) {
         this.stack = stack;
         this.text = text;
 
@@ -38,7 +38,7 @@ public class ItemStackText implements IText {
     }
 
     @Override
-    public Text text() {
+    public Component text() {
         return text;
     }
 
@@ -47,19 +47,19 @@ public class ItemStackText implements IText {
     }
 
     @Override
-    public void render(@NotNull DrawContext context, @NotNull TextRenderer textRenderer, int x, int y) {
-        context.drawItem(stack(), x - 4, y - 4);
-        context.drawTextWithShadow(textRenderer, text(), x + 14, y + 2, 0xFFFFFFFF);
+    public void render(@NotNull GuiGraphicsExtractor graphics, @NotNull Font font, int x, int y) {
+        graphics.item(stack(), x - 4, y - 4);
+        graphics.textWithBackdrop(font, text(), x + 14, y + 2, font.width(text()), 0xFFFFFFFF);
     }
 
     @Override
-    public int width(@NotNull TextRenderer textRenderer) {
-        return IText.super.width(textRenderer) + 14 + xPadding;
+    public int width(@NotNull Font font) {
+        return IText.super.width(font) + 14 + xPadding;
     }
 
     @Override
-    public int height(@NotNull TextRenderer textRenderer) {
-        return IText.super.height(textRenderer) + 2 + yPadding;
+    public int height(@NotNull Font font) {
+        return IText.super.height(font) + 2 + yPadding;
     }
 
     public ItemStackText padding(int xPadding, int yPadding) {

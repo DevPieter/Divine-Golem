@@ -1,11 +1,11 @@
 package nl.devpieter.divine.listeners;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import nl.devpieter.divine.enums.GolemStage;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorAboutToSpawnEvent;
 import nl.devpieter.divine.events.skyblock.protector.ProtectorFightBreakdownReadyEvent;
@@ -15,8 +15,8 @@ import nl.devpieter.divine.models.fightBreakdown.ProtectorFightBreakdown;
 import nl.devpieter.divine.models.fightBreakdown.details.FightDamageEntry;
 import nl.devpieter.sees.annotations.SEventListener;
 import nl.devpieter.sees.listener.SListener;
-import nl.devpieter.utilize.utils.minecraft.SoundUtils;
-import nl.devpieter.utilize.utils.minecraft.TextUtils;
+import nl.devpieter.utilize.client.utils.SoundUtils;
+import nl.devpieter.utilize.client.utils.TextUtils;
 
 public class ProtectorFightListener implements SListener {
 
@@ -92,26 +92,26 @@ public class ProtectorFightListener implements SListener {
         if (event.stage() != GolemStage.AWAKENING) return;
 
         Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0x3be477)).withBold(true);
-        Text title = TextUtils.withStyle(Text.of("Stage 4 Reached"), titleStyle);
+        Component title = TextUtils.withStyle(Component.literal("Stage 4 Reached"), titleStyle);
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        client.inGameHud.setTitleTicks(0, 20 * 5, 20 * 2);
-        client.inGameHud.setTitle(title);
+        Minecraft client = Minecraft.getInstance();
+        client.gui.hud.setTimes(0, 20 * 5, 20 * 2);
+        client.gui.hud.setTitle(title);
 
-        SoundEvent sound = SoundEvents.BLOCK_ANVIL_LAND;
-        SoundUtils.playOnMaster(sound, 1.0f, 1.0f);
+        SoundEvent sound = SoundEvents.ANVIL_LAND;
+        SoundUtils.playUi(sound, 1.0f, 1.0f);
     }
 
     @SEventListener
     private void onProtectorAboutToSpawn(ProtectorAboutToSpawnEvent event) {
         Style titleStyle = Style.EMPTY.withColor(TextColor.fromRgb(0x3be477)).withBold(true);
-        Text title = TextUtils.withStyle(Text.of("Stage 5 Reached"), titleStyle);
+        Component title = TextUtils.withStyle(Component.literal("Stage 5 Reached"), titleStyle);
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        client.inGameHud.setTitleTicks(0, 20 * 5, 20 * 2);
-        client.inGameHud.setTitle(title);
+        Minecraft client = Minecraft.getInstance();
+        client.gui.hud.setTimes(0, 20 * 5, 20 * 2);
+        client.gui.hud.setTitle(title);
 
-        SoundEvent sound = SoundEvents.BLOCK_ANVIL_LAND;
-        SoundUtils.playOnMaster(sound, 1.0f, 1.0f);
+        SoundEvent sound = SoundEvents.ANVIL_LAND;
+        SoundUtils.playUi(sound, 1.0f, 1.0f);
     }
 }

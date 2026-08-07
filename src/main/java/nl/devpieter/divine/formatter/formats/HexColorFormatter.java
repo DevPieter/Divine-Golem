@@ -1,9 +1,9 @@
 package nl.devpieter.divine.formatter.formats;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import nl.devpieter.divine.formatter.ITextFormatter;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +23,7 @@ public class HexColorFormatter implements ITextFormatter {
     }
 
     @Override
-    public MutableText format(String content, Style baseStyle) {
-        return Text.literal(content).setStyle(baseStyle.withColor(color));
+    public MutableComponent format(String content, Style baseStyle) {
+        return Component.literal(content).setStyle(baseStyle.withColor(color));
     }
 }

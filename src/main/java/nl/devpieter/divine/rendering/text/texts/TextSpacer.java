@@ -1,8 +1,8 @@
 package nl.devpieter.divine.rendering.text.texts;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 import nl.devpieter.divine.rendering.text.IText;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,22 +33,23 @@ public class TextSpacer implements IText {
     }
 
     @Override
-    public Text text() {
-        return Text.empty();
+    public Component text() {
+        return Component.empty();
     }
 
     @Override
-    public void render(@NotNull DrawContext context, @NotNull TextRenderer textRenderer, int x, int y) {
-        context.drawTextWithShadow(textRenderer, text(), x, y, 0xFFFFFFFF);
+    public void render(@NotNull GuiGraphicsExtractor graphics, @NotNull Font font, int x, int y) {
+//        graphics.drawTextWithShadow(font, text(), x, y, 0xFFFFFFFF);
+        graphics.textWithBackdrop(font, text(), x, y, font.width(text()), 0xFFFFFFFF);
     }
 
     @Override
-    public int width(@NotNull TextRenderer textRenderer) {
+    public int width(@NotNull Font font) {
         return width;
     }
 
     @Override
-    public int height(@NotNull TextRenderer textRenderer) {
+    public int height(@NotNull Font font) {
         return height;
     }
 

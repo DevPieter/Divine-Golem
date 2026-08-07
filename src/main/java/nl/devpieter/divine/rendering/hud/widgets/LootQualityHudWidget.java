@@ -1,10 +1,10 @@
 package nl.devpieter.divine.rendering.hud.widgets;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import nl.devpieter.divine.GolemManager;
 import nl.devpieter.divine.models.fightBreakdown.LootQualityBreakdown;
 import nl.devpieter.divine.rendering.hud.widget.HudWidget;
@@ -19,11 +19,11 @@ import java.util.List;
 
 public class LootQualityHudWidget extends HudWidget {
 
-    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final Minecraft client = Minecraft.getInstance();
     private final GolemManager golemManager = GolemManager.getInstance();
 
-    private final ItemStack tierBoostCoreStack = new ItemStack(Items.RED_DYE);
-    private final ItemStack golemPetStack = new ItemStack(Items.SKELETON_SKULL);
+    private ItemStack tierBoostCoreStack = null;
+    private ItemStack golemPetStack = null;
 
     @Override
     public @NotNull String name() {
@@ -42,7 +42,9 @@ public class LootQualityHudWidget extends HudWidget {
     }
 
     @Override
-    protected void renderWidget(DrawContext context) {
+    protected void renderWidget(GuiGraphicsExtractor graphics) {
+        if (tierBoostCoreStack == null) tierBoostCoreStack = new ItemStack(Items.DYE.red());
+        if (golemPetStack == null) golemPetStack = new ItemStack(Items.SKELETON_SKULL);
 
         LootQualityBreakdown breakdown = golemManager.currentFightBreakdown().calculateLootQualityBreakdown();
         if (breakdown == null) return;
@@ -52,8 +54,8 @@ public class LootQualityHudWidget extends HudWidget {
         lines.add(TextLine.off("text.divine.widget.loot_quality.final_quality", labelStyle, breakdown.finalQuality()));
         lines.add(TextSpacer.of(6));
 
-        String yes = Text.translatable("text.divine.generic.yes").getString();
-        String no = Text.translatable("text.divine.generic.no").getString();
+        String yes = Component.translatable("text.divine.generic.yes").getString();
+        String no = Component.translatable("text.divine.generic.no").getString();
 
         boolean couldDropTbc = breakdown.finalQuality() >= 250;
         lines.add(ItemStackText.off(tierBoostCoreStack, "text.divine.widget.loot_quality.tier_boost_core", labelStyle, couldDropTbc ? yes : no));
@@ -64,26 +66,29 @@ public class LootQualityHudWidget extends HudWidget {
         boolean canDropEgp = breakdown.finalQuality() >= 220;
         lines.add(ItemStackText.off(golemPetStack, "text.divine.widget.loot_quality.golem_pet_epic", labelStyle, canDropEgp ? yes : no));
 
-        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, lines);
+        drawDynamicBox(graphics, client.font, 0, 0, backgroundColor, lines);
     }
 
     @Override
-    protected void renderDummyWidget(DrawContext context) {
-        drawDynamicBox(context, client.textRenderer, 0, 0, backgroundColor, getDummyLines());
+    protected void renderDummyWidget(GuiGraphicsExtractor graphics) {
+        if (tierBoostCoreStack == null) tierBoostCoreStack = new ItemStack(Items.DYE.red());
+        if (golemPetStack == null) golemPetStack = new ItemStack(Items.SKELETON_SKULL);
+
+        drawDynamicBox(graphics, client.font, 0, 0, backgroundColor, getDummyLines());
     }
 
     @Override
     public int dummyWidth() {
-        return calculateBoxWidth(client.textRenderer, getDummyLines());
+        return calculateBoxWidth(client.font, getDummyLines());
     }
 
     @Override
     public int dummyHeight() {
-        return calculateBoxHeight(client.textRenderer, getDummyLines());
+        return calculateBoxHeight(client.font, getDummyLines());
     }
 
     private List<IText> getDummyLines() {
-        String yes = Text.translatable("text.divine.generic.yes").getString();
+        String yes = Component.translatable("text.divine.generic.yes").getString();
 
         return List.of(
                 TextLine.off("text.divine.widget.loot_quality.final_quality", labelStyle, "250"),

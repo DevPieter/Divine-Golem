@@ -1,6 +1,6 @@
 package nl.devpieter.divine.config.setting;
 
-import nl.devpieter.utilize.setting.settings.IntSetting;
+import nl.devpieter.utilize.client.setting.settings.IntSetting;
 import org.jetbrains.annotations.NotNull;
 
 public class ClampedIntSetting extends IntSetting {

@@ -1,6 +1,6 @@
 package nl.devpieter.divine.rendering.hud.widget;
 
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.NotNull;
 
 public interface IHudWidget {
@@ -11,11 +11,11 @@ public interface IHudWidget {
 
     boolean shouldRender();
 
-    void render(@NotNull DrawContext context);
+    void render(@NotNull GuiGraphicsExtractor graphics);
 
-    void renderDummy(@NotNull DrawContext context, boolean disabled);
+    void renderDummy(@NotNull GuiGraphicsExtractor graphics, boolean disabled);
 
-    void renderDummyHighlighted(@NotNull DrawContext context, boolean disabled);
+    void renderDummyHighlighted(@NotNull GuiGraphicsExtractor graphics, boolean disabled);
 
     int dummyWidth();
 

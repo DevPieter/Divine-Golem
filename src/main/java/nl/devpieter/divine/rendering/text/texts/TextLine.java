@@ -1,21 +1,21 @@
 package nl.devpieter.divine.rendering.text.texts;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import nl.devpieter.divine.formatter.TextFormatUtils;
 import nl.devpieter.divine.rendering.text.IText;
 import org.jetbrains.annotations.NotNull;
 
 public class TextLine implements IText {
 
-    public static TextLine of(Text text) {
+    public static TextLine of(Component text) {
         return new TextLine(text);
     }
 
     public static TextLine of(String text) {
-        return TextLine.of(Text.of(text));
+        return TextLine.of(Component.literal(text));
     }
 
     public static TextLine off(String key, Style style, Object... args) {
@@ -23,15 +23,15 @@ public class TextLine implements IText {
     }
 
     public static TextLine empty() {
-        return TextLine.of(Text.empty());
+        return TextLine.of(Component.empty());
     }
 
-    private final Text text;
+    private final Component text;
 
     private int xPadding;
     private int yPadding;
 
-    public TextLine(Text text) {
+    public TextLine(Component text) {
         this.text = text;
 
         this.xPadding = 0;
@@ -39,23 +39,23 @@ public class TextLine implements IText {
     }
 
     @Override
-    public Text text() {
+    public Component text() {
         return text;
     }
 
     @Override
-    public void render(@NotNull DrawContext context, @NotNull TextRenderer textRenderer, int x, int y) {
-        context.drawTextWithShadow(textRenderer, text(), x, y, 0xFFFFFFFF);
+    public void render(@NotNull GuiGraphicsExtractor graphics, @NotNull Font font, int x, int y) {
+        graphics.textWithBackdrop(font, text(), x, y, font.width(text()), 0xFFFFFFFF);
     }
 
     @Override
-    public int width(@NotNull TextRenderer textRenderer) {
-        return IText.super.width(textRenderer) + xPadding;
+    public int width(@NotNull Font font) {
+        return IText.super.width(font) + xPadding;
     }
 
     @Override
-    public int height(@NotNull TextRenderer textRenderer) {
-        return IText.super.height(textRenderer) + yPadding;
+    public int height(@NotNull Font font) {
+        return IText.super.height(font) + yPadding;
     }
 
     public TextLine padding(int xPadding, int yPadding) {

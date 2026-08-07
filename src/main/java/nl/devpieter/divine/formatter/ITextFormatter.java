@@ -1,11 +1,11 @@
 package nl.devpieter.divine.formatter;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 public interface ITextFormatter {
 
     String getTag();
 
-    MutableText format(String content, Style baseStyle);
+    MutableComponent format(String content, Style baseStyle);
 }

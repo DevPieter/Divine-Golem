@@ -1,24 +1,24 @@
 package nl.devpieter.divine.listeners;
 
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import nl.devpieter.divine.events.PlayerListUpdateEvent;
 import nl.devpieter.sees.Sees;
-import nl.devpieter.utilize.listeners.packet.IPacketListener;
+import nl.devpieter.utilize.packet.IPacketListener;
 
 import java.lang.reflect.Type;
 
-public class PlayerListPacketListener implements IPacketListener<PlayerListS2CPacket> {
+public class PlayerListPacketListener implements IPacketListener<ClientboundPlayerInfoUpdatePacket> {
 
     private final Sees sees = Sees.getSharedInstance();
 
     @Override
     public Type getPacketType() {
-        return PlayerListS2CPacket.class;
+        return ClientboundPlayerInfoUpdatePacket.class;
     }
 
     @Override
-    public boolean onPacket(PlayerListS2CPacket packet) {
-        sees.dispatch(new PlayerListUpdateEvent(packet.getEntries()));
+    public boolean onPacket(ClientboundPlayerInfoUpdatePacket packet) {
+        sees.dispatch(new PlayerListUpdateEvent(packet.entries()));
         return false;
     }
 }
