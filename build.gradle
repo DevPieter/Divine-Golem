@@ -40,8 +40,7 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     implementation "nl.devpieter:sees:1.2.1"
-//    implementation "nl.devpieter:utilize:2.0.1+26.1-26.2"
-    implementation "nl.devpieter:utilize:2.0.1+26.1-26.2-SNAPSHOT+36"
+    implementation "nl.devpieter:utilize:2.0.1+26.1-26.2"
 
     implementation "net.harawata:appdirs:1.5.0"
     include "net.harawata:appdirs:1.5.0"
